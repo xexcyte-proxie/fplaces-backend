@@ -10,9 +10,11 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
+ENV_MODE = env("ENV_MODE", default="local")  # Options: local, dev, prod
+
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-me-in-production")
 
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=(ENV_MODE in ["local", "dev"]))
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
@@ -86,11 +88,27 @@ CHANNEL_LAYERS = {
 
 
 # Database
-# Postgres is used whenever DATABASE_URL is set (dev w/ a shared db, staging, production).
-# Falls back to SQLite for plain local development with no DATABASE_URL configured.
-DATABASES = {
-    "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
-}
+# Postgres is used whenever DATABASE_URL is set, or if we are in local/dev mode and individual DB_* variables are provided.
+# Falls back to SQLite for plain local development.
+if env("DATABASE_URL", default=None):
+    DATABASES = {
+        "default": env.db("DATABASE_URL")
+    }
+elif ENV_MODE in ["local", "dev"] and env("DB_HOST", default=None):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME", default="postgres"),
+            "USER": env("DB_USER", default=""),
+            "PASSWORD": env("DB_PASSWORD", default=""),
+            "HOST": env("DB_HOST", default=""),
+            "PORT": env.int("DB_PORT", default=5432),
+        }
+    }
+else:
+    DATABASES = {
+        "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    }
 
 
 AUTH_USER_MODEL = "users.User"
