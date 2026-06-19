@@ -1,0 +1,33 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+<div id="content-related" style="margin-top: 20px;">
+    <div class="module" id="api-docs-module" style="margin-bottom: 20px; background: var(--body-bg, #ffffff); border: 1px solid var(--border-color, #ccc); padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="margin: -15px -15px 15px -15px; padding: 10px 15px; background: var(--primary, #79aec8); color: var(--primary-contrast, #fff); border-radius: 4px 4px 0 0; font-size: 14px; font-weight: 600;">
+            {% translate 'API Documentation & Control' %}
+        </h2>
+        <p style="margin: 0 0 12px 0; font-size: 12px; line-height: 1.5; color: var(--body-loud-color, #333);">
+            Quick access to fPlaces API specifications for administrators:
+        </p>
+        <ul style="padding-left: 18px; margin: 0; font-size: 13px;">
+            <li style="margin-bottom: 8px;">
+                <a href="/api/docs/" target="_blank" style="font-weight: bold; color: var(--link-color, #447e9b); text-decoration: none;">
+                    Swagger Console (Interactive)
+                </a>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <a href="/api/redoc/" target="_blank" style="font-weight: bold; color: var(--link-color, #447e9b); text-decoration: none;">
+                    Redoc Reference (Static)
+                </a>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <a href="/api/schema/" target="_blank" style="color: var(--body-quiet-color, #666); text-decoration: none;">
+                    Raw OpenAPI Schema (JSON)
+                </a>
+            </li>
+        </ul>
+    </div>
+    {{ block.super }}
+</div>
+{% endblock %}

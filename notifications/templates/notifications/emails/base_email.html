@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ project_name }}{% endblock %}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f4; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4; padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border:1px solid #000000; max-width:480px;">
+          <tr>
+            <td style="background-color:#000000; padding:24px 32px;">
+              <span style="color:#ffffff; font-size:20px; font-weight:700; letter-spacing:0.5px;">{{ project_name }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              {% block content %}{% endblock %}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px; border-top:1px solid #000000;">
+              <p style="margin:0; color:#666666; font-size:12px; line-height:1.5;">
+                {% block footer %}You're receiving this email because you have an account with {{ project_name }}.{% endblock %}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
