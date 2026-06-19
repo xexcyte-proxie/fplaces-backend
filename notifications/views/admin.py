@@ -16,11 +16,18 @@ _TAGS = ["Admin"]
 @extend_schema_view(
     create=extend_schema(
         tags=_TAGS,
-        summary="Broadcast admin notification to targeted users",
+        summary="Broadcast an admin notification to targeted users",
         description=(
-            "Sends email, in-app push, or both notifications to users filtered by venue, "
-            "section, category, or specific user IDs. Creates a union of targeted users "
-            "matching any of the specified filter criteria."
+            "Sends an email, an in-app push (a `Notification` row with "
+            "`verb=broadcast`, delivered live over `ws/notifications/`), or both, to "
+            "active users matched by **any** of `venue`/`section`/`category` (users "
+            "who have posted there) or explicit `users` ids — a union, not an "
+            "intersection. At least one filter is required.\n\n"
+            "Delivery is best-effort per user/channel: a failure sending to one user "
+            "(e.g. a bad email address) is swallowed and doesn't stop the rest of the "
+            "broadcast; the response reports how many sends actually succeeded via "
+            "`email_sent`/`push_sent` versus how many users were matched "
+            "(`users_targeted`)."
         ),
         request=AdminNotificationRequestSerializer,
         responses={
