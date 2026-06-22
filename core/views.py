@@ -8,6 +8,7 @@ def root_view(request):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>fPlaces is Live</title>
+    <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
@@ -146,6 +147,39 @@ def root_view(request):
             }
         }
 
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--accent-color);
+            color: var(--bg-color);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 224, 150, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 224, 150, 0.1);
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -168,6 +202,10 @@ def root_view(request):
             </div>
             <h1>fPlaces is live</h1>
             <p>The real-time, venue-scoped social platform API and engine are running smoothly.</p>
+            <div class="button-group">
+                <a href="/api/docs/" class="btn">Swagger Docs</a>
+                <a href="/api/redoc/" class="btn btn-outline">ReDoc</a>
+            </div>
         </div>
     </div>
 </body>

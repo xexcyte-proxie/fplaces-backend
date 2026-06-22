@@ -16,11 +16,17 @@ SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-me-in-production"
 
 DEBUG = env.bool("DEBUG", default=(ENV_MODE in ["local", "dev"]))
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".vercel.app"]
 
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=DEBUG)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 INSTALLED_APPS = [
     "daphne",
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -215,4 +222,3 @@ FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
 # Resend API. With no key set (e.g. local dev), it logs the email instead of sending.
 RESEND_API_KEY = env("RESEND_API_KEY", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@fplaces.app")
-SEND_TO_EMAIL = env("SEND_TO_EMAIL", default=None)

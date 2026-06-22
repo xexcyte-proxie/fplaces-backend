@@ -16,11 +16,7 @@ def send_template_email(*, to, subject, template_name, context, text):
 
 
 def send_email(*, to, subject, text, html=None):
-    if getattr(settings, "SEND_TO_EMAIL", None):
-        logger.info("SEND_TO_EMAIL is set; rerouting email from %s to %s", to, settings.SEND_TO_EMAIL)
-        recipients = [settings.SEND_TO_EMAIL]
-    else:
-        recipients = [to] if isinstance(to, str) else list(to)
+    recipients = [to] if isinstance(to, str) else list(to)
 
     if not settings.RESEND_API_KEY:
         logger.info(
