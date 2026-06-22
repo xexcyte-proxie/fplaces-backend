@@ -1,7 +1,10 @@
-from django.contrib.auth.models import Group
+from random import seed
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from forum.models import Category, Section, Venue
+
+User = get_user_model()
 
 CATEGORIES = [
     {
@@ -29,8 +32,6 @@ CATEGORIES = [
     },
 ]
 
-GROUPS = ["Venue Admin", "Moderator"]
-
 VENUES = [
     {
         "name": "Riverside Stadium",
@@ -41,23 +42,39 @@ VENUES = [
 
 
 class Command(BaseCommand):
-    help = "Seed initial reference data: post categories, base groups, and a sample venue."
+    help = "Seed initial reference data: post categories, base users, and a sample venue."
 
     def handle(self, *args, **options):
+        self.stdout.write("Seeding sample users...")
+        users_data = [
+            {"email": "admin@fplaces.com", "is_staff": True, "is_superuser": True, "is_email_verified": True, "user_type": User.UserType.ADMIN},
+            {"email": "fan@fplaces.com", "is_email_verified": True, "user_type": User.UserType.REGULAR_USER},
+        ]
+        
+        admin_user = None
+        for u_data in users_data:
+            email = u_data["email"]
+            user, created = User.objects.get_or_create(email=email, defaults=u_data)
+            if created:
+                user.set_password("password123")
+                user.save()
+            if email == "admin@fplaces.com":
+                admin_user = user
+            verb = "Created" if created else "Already exists"
+            self.stdout.write(f"{verb} user: {email}")
+
         for data in CATEGORIES:
+            data_defaults = data.copy()
+            data_defaults["created_by"] = admin_user
             category, created = Category.objects.update_or_create(
-                name=data["name"], defaults=data
+                name=data["name"], defaults=data_defaults
             )
             verb = "Created" if created else "Updated"
             self.stdout.write(f"{verb} category: {category.name}")
 
-        for group_name in GROUPS:
-            group, created = Group.objects.get_or_create(name=group_name)
-            verb = "Created" if created else "Already exists"
-            self.stdout.write(f"{verb} group: {group.name}")
-
         for venue_data in VENUES:
             section_names = venue_data.pop("sections", [])
+            venue_data["created_by"] = admin_user
             venue, created = Venue.objects.update_or_create(
                 name=venue_data["name"], defaults=venue_data
             )
@@ -66,9 +83,10 @@ class Command(BaseCommand):
 
             for section_name in section_names:
                 section, created = Section.objects.update_or_create(
-                    venue=venue, name=section_name
+                    venue=venue, name=section_name, defaults={"created_by": admin_user}
                 )
                 verb = "Created" if created else "Already exists"
                 self.stdout.write(f"  {verb} section: {section.name}")
 
         self.stdout.write(self.style.SUCCESS("Seed data applied."))
+

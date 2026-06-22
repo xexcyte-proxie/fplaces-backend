@@ -13,11 +13,12 @@ class UserSerializer(BaseSerializer):
             "id",
             "email",
             "pseudo_name",
+            "user_type",
             "is_email_verified",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "email", "is_email_verified"]
+        read_only_fields = ["id", "email", "user_type", "is_email_verified"]
         extra_kwargs = {
             "pseudo_name": {
                 "help_text": "Public display name shown on posts/comments instead of "

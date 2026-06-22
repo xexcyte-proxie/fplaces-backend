@@ -6,8 +6,17 @@ from users.managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin, BaseModel):
+    class UserType(models.TextChoices):
+        REGULAR_USER = "regular_user", "Regular User"
+        ADMIN = "admin", "Admin"
+
     email = models.EmailField(unique=True)
     pseudo_name = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    user_type = models.CharField(
+        max_length=20,
+        choices=UserType.choices,
+        default=UserType.REGULAR_USER,
+    )
 
     is_email_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
