@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -9,6 +10,7 @@ admin.site.site_title = "fPlaces Admin Portal"
 admin.site.index_title = "fPlaces System Administration"
 
 urlpatterns = [
+    path("favicon.ico", lambda _: HttpResponse(status=204)),
     path("", root_view, name="root"),
     path("admin/", admin.site.urls),
     path("api/admin/", include("config.admin_urls")),
