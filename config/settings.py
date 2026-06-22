@@ -18,11 +18,10 @@ DEBUG = env.bool("DEBUG", default=(ENV_MODE in ["local", "dev"]))
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=DEBUG)
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://fplaces-backend-faz3gx5l4-fplaces.vercel.app",
 ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
