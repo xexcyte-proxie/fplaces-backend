@@ -16,7 +16,7 @@ SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-me-in-production"
 
 DEBUG = env.bool("DEBUG", default=(ENV_MODE in ["local", "dev"]))
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".vercel.app"]
+ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=DEBUG)
 CORS_ALLOWED_ORIGINS = [
