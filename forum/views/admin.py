@@ -1,4 +1,6 @@
+from datetime import timedelta
 from django.db import transaction
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
@@ -7,6 +9,7 @@ from rest_framework.response import Response
 from core.realtime import broadcast, venue_group
 from forum.models import Post, PostFlag
 from forum.serializers.admin import AdminPostSerializer
+from forum.utils import broadcast_venue_heatmap
 
 _TAGS = ["Admin"]
 
@@ -83,6 +86,10 @@ class AdminPostViewSet(viewsets.ModelViewSet):
         post.status = Post.STATUS_HIDDEN
         post.save(update_fields=["status", "updated_at"])
         broadcast(venue_group(post.venue_id), "post_hidden", {"post_id": post.id})
+        
+        if post.section_id:
+            broadcast_venue_heatmap(post.venue_id)
+            
         return Response(self.get_serializer(post).data)
 
     @extend_schema(

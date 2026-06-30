@@ -186,7 +186,8 @@ SPECTACULAR_SETTINGS = {
         "## Soft delete\n"
         "Nothing is hard-deleted. `DELETE` on any resource archives it (`is_archived=True`) "
         "instead of removing the row; archived records are excluded from normal querysets. "
-        "Most resources expose a `POST /{id}/restore/` action to bring them back."
+        "Most resources expose a `POST /{id}/restore/` action to bring them back.\n\n"
+        '<br/><a href="/api/guide.html" target="_blank" style="display:inline-block; padding:10px 20px; background-color:#00e096; color:#08090c; text-decoration:none; border-radius:8px; font-weight:bold;">📖 View Frontend Integration Guide</a>'
     ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,

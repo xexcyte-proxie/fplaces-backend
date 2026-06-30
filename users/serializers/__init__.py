@@ -2,6 +2,7 @@ from users.serializers.auth import (
     ChangePasswordSerializer,
     EmailTokenObtainPairSerializer,
     EmailVerificationSerializer,
+    GoogleLoginSerializer,
     LogoutSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
@@ -19,6 +20,7 @@ __all__ = [
     "ChangePasswordSerializer",
     "LogoutSerializer",
     "EmailTokenObtainPairSerializer",
+    "GoogleLoginSerializer",
     "UserSerializer",
     "PublicUserSerializer",
 ]

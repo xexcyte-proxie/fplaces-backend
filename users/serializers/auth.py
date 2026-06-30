@@ -152,3 +152,10 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         data["user"] = UserSerializer(self.user).data
         return data
+
+
+class GoogleLoginSerializer(serializers.Serializer):
+    id_token = serializers.CharField(
+        help_text="The ID token returned by Google's OAuth2 frontend SDK."
+    )
+

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from core.views import root_view
+from core.views import guide_view, root_view
 
 admin.site.site_header = "fPlaces Admin Dashboard"
 admin.site.site_title = "fPlaces Admin Portal"
@@ -19,6 +19,7 @@ urlpatterns = [
     path("api/notifications/", include("notifications.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/guide.html", guide_view, name="guide"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
 

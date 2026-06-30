@@ -1,4 +1,14 @@
-from django.http import HttpResponse
+import os
+from django.conf import settings
+from django.http import Http404, HttpResponse
+
+def guide_view(request):
+    guide_path = os.path.join(settings.BASE_DIR, "doc", "frontend_integration_guide.html")
+    if not os.path.exists(guide_path):
+        raise Http404("Guide not found")
+    with open(guide_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    return HttpResponse(content)
 
 
 def root_view(request):

@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django.db import transaction
 from django.db.models import F
+from django.utils import timezone
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import permissions
 from rest_framework.decorators import action
@@ -11,6 +13,7 @@ from core.viewsets import BaseViewSet
 from forum.filters import PostFilter
 from forum.models import Post, PostFlag, PostVote
 from forum.serializers import PostFlagRequestSerializer, PostSerializer
+from forum.utils import broadcast_venue_heatmap
 
 _TAGS = ["Posts"]
 
@@ -87,14 +90,7 @@ class PostViewSet(BaseViewSet):
         )
 
         if post.section_id:
-            heat = Post.objects.filter(
-                section_id=post.section_id, status=Post.STATUS_VISIBLE
-            ).count()
-            broadcast(
-                venue_group(post.venue_id),
-                "section_heat_update",
-                {"section_id": post.section_id, "post_count": heat},
-            )
+            broadcast_venue_heatmap(post.venue_id)
 
     @extend_schema(
         tags=_TAGS,
@@ -160,5 +156,14 @@ class PostViewSet(BaseViewSet):
                 Post.objects.filter(pk=post.pk).update(flags_count=F("flags_count") + 1)
 
         post.refresh_from_db()
+        
+        if post.flags_count >= 3 and post.status != Post.STATUS_HIDDEN:
+            post.status = Post.STATUS_HIDDEN
+            post.save(update_fields=["status", "updated_at"])
+            broadcast(venue_group(post.venue_id), "post_hidden", {"post_id": post.id})
+            
+            if post.section_id:
+                broadcast_venue_heatmap(post.venue_id)
+
         return Response(self.get_serializer(post).data)
 

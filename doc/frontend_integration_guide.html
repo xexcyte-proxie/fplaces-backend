@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend_integration_guide.html</title>
+    <base href="file:///Users/sunday/Documents/Project/fPlaces/doc/" />
+    
+    <style>:root {
+  color-scheme: light dark;
+  --meo-font-system-sans: ui-sans-serif, system-ui, sans-serif;
+  --meo-font-system-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --meo-bg: #1f1f1f;
+  --meo-fg: #cccccc;
+  --meo-muted: #676f7d;
+  --meo-border: #3e444d;
+  --meo-base04: #e06c75;
+  --meo-base05: #61afef;
+  --meo-base07: #e5c07b;
+  --meo-base08: #c678dd;
+  --meo-base09: #98c379;
+  --meo-heading: #e06c75;
+  --meo-link: #61afef;
+  --meo-accent-2: #66d9ef;
+  --meo-strong: #e5c07b;
+  --meo-number: #c678dd;
+  --meo-quote: #e5c07b;
+  --meo-font-body: Menlo, Monaco, 'Courier New', monospace;
+  --meo-font-code: Menlo, Monaco, 'Courier New', monospace;
+  --meo-font-weight-body: normal;
+  --meo-font-weight-code: normal;
+  --meo-font-size-body: 12px;
+  --meo-font-size-code: 12px;
+  --meo-heading-1-size: 1.6em;
+  --meo-heading-2-size: 1.5em;
+  --meo-heading-3-size: 1.3em;
+  --meo-heading-4-size: 1.2em;
+  --meo-heading-5-size: 1.1em;
+  --meo-heading-6-size: 1em;
+  --meo-heading-1-weight: 600;
+  --meo-heading-2-weight: 600;
+  --meo-heading-3-weight: 600;
+  --meo-heading-4-weight: 600;
+  --meo-heading-5-weight: 600;
+  --meo-heading-6-weight: 600;
+  --meo-line-height: 1.5;
+  --meo-code-line-height: 1.5;
+  --meo-code-bg: color-mix(in srgb, #1f1f1f 88%, black 12%);
+  --meo-sidebar-bg: color-mix(in srgb, #1f1f1f 86%, #3e444d 14%);
+  --meo-page-bg: color-mix(in srgb, var(--meo-bg) 86%, var(--meo-border) 14%);
+  --meo-panel-bg: color-mix(in srgb, var(--meo-bg) 96%, var(--meo-fg) 4%);
+  --meo-panel-border: #2b2b2b;
+  --meo-doc-border: color-mix(in srgb, var(--meo-panel-border) 55%, transparent);
+  --meo-code-border: color-mix(in srgb, var(--meo-panel-border) 45%, transparent);
+  --meo-hr: color-mix(in srgb, var(--meo-border) 70%, transparent);
+  --meo-table-border: var(--meo-panel-border);
+  --meo-table-header-bg: var(--meo-sidebar-bg);
+  --meo-kbd-bg: color-mix(in srgb, var(--meo-sidebar-bg) 88%, var(--meo-bg) 12%);
+  --meo-kbd-border: color-mix(in srgb, var(--meo-border) 85%, transparent);
+  --meo-kbd-shadow: color-mix(in srgb, var(--meo-border) 55%, transparent);
+  --meo-mermaid-error-border: color-mix(in srgb, var(--meo-heading) 70%, var(--meo-border) 30%);
+  --meo-mermaid-error-fg: color-mix(in srgb, var(--meo-heading) 75%, var(--meo-fg) 25%);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--meo-bg);
+  color: var(--meo-fg);
+  font-family: var(--meo-font-body);
+  font-weight: var(--meo-font-weight-body);
+  font-size: var(--meo-font-size-body);
+  line-height: var(--meo-line-height);
+}
+
+.meo-export-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  background: var(--meo-bg);
+}
+
+html[data-meo-export-target='pdf'] .meo-export-page,
+body[data-meo-export-target='pdf'] .meo-export-page {
+  background: var(--meo-bg);
+  padding: 0;
+}
+
+html[data-meo-export-target='pdf'],
+body[data-meo-export-target='pdf'] {
+  background: var(--meo-bg);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+html[data-meo-export-target='pdf'] body,
+body[data-meo-export-target='pdf'] {
+  position: relative;
+}
+
+html[data-meo-export-target='pdf'] body::after,
+body[data-meo-export-target='pdf']::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: -8px;
+  bottom: 0;
+  width: 16px;
+  background: var(--meo-bg);
+  pointer-events: none;
+}
+
+html[data-meo-export-target='pdf'] .meo-export-doc,
+body[data-meo-export-target='pdf'] .meo-export-doc {
+  width: calc(100% + 8px);
+  margin: 0;
+  margin-right: -8px;
+  border: 0;
+  border-radius: 0;
+  padding: calc(0.5in + 24px);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+html[data-meo-export-target='pdf'] .meo-export-page,
+body[data-meo-export-target='pdf'] .meo-export-page {
+  width: calc(100% + 8px);
+  margin-right: -8px;
+}
+
+html[data-meo-export-target='pdf'] hr,
+body[data-meo-export-target='pdf'] hr {
+  height: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  break-before: page;
+  page-break-before: always;
+}
+
+.meo-export-doc {
+  width: 100%;
+  margin: 0;
+  padding: 28px 32px;
+  border: 0;
+  border-radius: 0;
+  background: var(--meo-bg);
+}
+
+.meo-export-doc > :first-child { margin-top: 0; }
+.meo-export-doc > :last-child { margin-bottom: 0; }
+
+.meo-export-frontmatter {
+  margin: 0 0 1em;
+  color: var(--meo-base07);
+  font-family: var(--meo-font-code);
+  font-weight: var(--meo-font-weight-code);
+  font-size: var(--meo-font-size-code);
+}
+
+.meo-export-frontmatter-boundary {
+  min-height: 1.4em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.meo-export-frontmatter-label {
+  display: inline-block;
+  color: var(--meo-muted);
+  font-size: 11px;
+  line-height: 1.4em;
+  text-transform: lowercase;
+}
+
+.meo-export-frontmatter-boundary.is-closing {
+  color: var(--meo-muted);
+}
+
+.meo-export-frontmatter-line {
+  min-height: 1.2em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.meo-export-frontmatter-line + .meo-export-frontmatter-line {
+  margin-top: 0.2em;
+}
+
+.meo-export-frontmatter-key {
+  color: var(--meo-base07);
+}
+
+.meo-export-frontmatter-value {
+  color: var(--meo-fg);
+}
+
+.meo-export-frontmatter-array {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  vertical-align: text-top;
+}
+
+.meo-export-frontmatter-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--meo-border);
+  color: var(--meo-fg);
+  font-size: 0.92em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--meo-heading);
+  line-height: 1.25;
+  margin-top: 1.2em;
+  margin-bottom: 0.55em;
+}
+h1 { font-size: var(--meo-heading-1-size); font-weight: var(--meo-heading-1-weight); }
+h2 { font-size: var(--meo-heading-2-size); font-weight: var(--meo-heading-2-weight); }
+h3 { font-size: var(--meo-heading-3-size); font-weight: var(--meo-heading-3-weight); }
+h4 { font-size: var(--meo-heading-4-size); font-weight: var(--meo-heading-4-weight); }
+h5 { font-size: var(--meo-heading-5-size); font-weight: var(--meo-heading-5-weight); }
+h6 { font-size: var(--meo-heading-6-size); font-weight: var(--meo-heading-6-weight); opacity: 0.9; }
+
+p, ul, ol, blockquote, pre, table, hr {
+  margin: 0 0 1em;
+}
+ul { padding-left: 1.5em; }
+ol { padding-left: 1.8em; }
+li + li { margin-top: 0.2em; }
+li > ul,
+li > ol {
+  margin-top: 0.35em;
+}
+ul ul,
+ul ol,
+ol ul,
+ol ol {
+  margin-bottom: 0.35em;
+}
+
+.meo-export-task-item {
+  list-style: none;
+  margin-left: -0.1em;
+}
+
+.meo-export-task-checkbox {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 17px;
+  height: 17px;
+  margin-right: 0.55em;
+  vertical-align: middle;
+  border: 1px solid var(--meo-border);
+  border-radius: 4px;
+  background: var(--meo-sidebar-bg);
+  position: relative;
+  top: -1px;
+}
+
+.meo-export-task-checkbox.is-done::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 7px;
+  border: solid var(--meo-fg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.meo-export-task-checkbox.is-inprogress::after,
+.meo-export-task-checkbox.is-dropped::after {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--meo-fg);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.meo-export-task-checkbox.is-inprogress::after {
+  content: '◐';
+  font-weight: 500;
+}
+
+.meo-export-task-checkbox.is-dropped::after {
+  content: '-';
+  font-weight: 700;
+}
+
+.meo-export-task-text.is-done {
+  color: var(--meo-muted);
+}
+
+.meo-export-task-text.is-dropped {
+  color: var(--meo-muted);
+  text-decoration: line-through;
+  text-decoration-color: currentColor;
+}
+
+a {
+  color: var(--meo-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+sup.footnote-ref {
+  font-size: 0.8em;
+  line-height: 1;
+  vertical-align: super;
+}
+
+.footnote-ref a,
+.footnote-backref {
+  color: var(--meo-link);
+  text-decoration: none;
+}
+
+.footnotes {
+  margin-top: 1.6em;
+  padding-top: 1em;
+  border-top: 1px solid var(--meo-hr);
+}
+
+.footnotes > hr {
+  display: none;
+}
+
+.footnotes-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.footnote-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55em;
+}
+
+.footnote-index {
+  flex: 0 0 auto;
+  min-width: 1.6em;
+  color: var(--meo-link);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.footnote-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.footnote-item + .footnote-item {
+  margin-top: 0.45em;
+}
+
+.footnote-body > :last-child {
+  margin-bottom: 0;
+}
+
+.footnote-backref {
+  margin-left: 0.35em;
+  color: var(--meo-muted);
+}
+
+strong { color: var(--meo-strong); }
+em { font-style: italic; }
+code {
+  font-family: var(--meo-font-code);
+  font-weight: var(--meo-font-weight-code);
+  font-size: var(--meo-font-size-code);
+  line-height: var(--meo-code-line-height);
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+  text-rendering: auto;
+}
+
+p code,
+li code,
+blockquote code,
+td code,
+th code {
+  padding: 0.08em 0.6em;
+  border-radius: 0.35em;
+  background: var(--meo-code-bg);
+  color: var(--meo-strong);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.08em;
+  padding: 0.04em 0.42em 0.1em;
+  min-width: 1.3em;
+  border: 1px solid var(--meo-kbd-border);
+  border-bottom-width: 2px;
+  border-radius: 0.35em;
+  background: var(--meo-kbd-bg);
+  color: var(--meo-fg);
+  font-family: var(--meo-font-code);
+  font-size: var(--meo-font-size-code);
+  font-weight: 600;
+  line-height: 1.2;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-indent: 0;
+  box-shadow: inset 0 -1px 0 var(--meo-kbd-shadow);
+}
+
+.meo-export-math {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+  vertical-align: baseline;
+}
+
+.meo-export-math-inline .katex {
+  font-size: 1em;
+}
+
+.meo-export-math-display {
+  display: block;
+  margin: 0.35em 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.meo-export-math-display .katex-display {
+  margin: 0;
+}
+
+.meo-export-math-display.meo-export-math-fenced-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 1em;
+  padding: 24px 16px;
+  border: 1px solid var(--meo-code-border);
+  border-radius: 0;
+  background: var(--meo-code-bg);
+  overflow-x: auto;
+  overflow-y: hidden;
+  line-height: 1;
+  text-align: center;
+}
+
+td .meo-export-math-display,
+th .meo-export-math-display {
+  margin: 0.2em 0;
+}
+
+pre.meo-export-code-block {
+  padding: 24px 16px;
+  overflow: auto;
+  border-radius: 0;
+  border: 1px solid var(--meo-code-border);
+  background: var(--meo-code-bg);
+}
+.meo-export-code-block-wrap {
+  position: relative;
+  margin: 0 0 1em;
+}
+.meo-export-code-block-wrap > pre.meo-export-code-block {
+  margin: 0;
+}
+.meo-export-code-language-label {
+  position: absolute;
+  top: 6px;
+  left: 16px;
+  z-index: 1;
+  color: var(--meo-muted);
+  font-family: var(--meo-font-code);
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+  text-transform: lowercase;
+}
+.meo-export-code-block-wrap .meo-export-code-language-label + pre.meo-export-code-block {
+  padding-top: 34px;
+}
+pre.meo-export-code-block code {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+blockquote {
+  margin-left: 0;
+  padding: 0 0 0 3ch;
+  border-left: 3px solid var(--meo-quote);
+  background: transparent;
+  border-radius: 0;
+  color: var(--meo-quote);
+}
+
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--meo-hr);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  background: transparent;
+}
+th, td {
+  border: 1px solid var(--meo-table-border);
+  padding: 0.45em 0.6em;
+  vertical-align: top;
+  text-align: left;
+  min-height: 1lh;
+}
+th {
+  background: var(--meo-table-header-bg);
+  color: var(--meo-fg);
+}
+
+td:empty::before,
+th:empty::before {
+  content: '\00a0';
+  visibility: hidden;
+}
+
+/* GitHub Alerts */
+.meo-export-alert {
+  margin: 1em 0;
+  padding: 0 0 0 3ch;
+  border-left: 3px solid;
+  border-radius: 0;
+  background: transparent;
+}
+
+.meo-export-alert-note {
+  --meo-alert-color: var(--meo-base05);
+  border-left-color: var(--meo-base05);
+  background-color: color-mix(in srgb, var(--meo-base05) 8%, transparent);
+}
+
+.meo-export-alert-tip {
+  --meo-alert-color: var(--meo-base09);
+  border-left-color: var(--meo-base09);
+  background-color: color-mix(in srgb, var(--meo-base09) 8%, transparent);
+}
+
+.meo-export-alert-important {
+  --meo-alert-color: var(--meo-base08);
+  border-left-color: var(--meo-base08);
+  background-color: color-mix(in srgb, var(--meo-base08) 8%, transparent);
+}
+
+.meo-export-alert-warning {
+  --meo-alert-color: var(--meo-base07);
+  border-left-color: var(--meo-base07);
+  background-color: color-mix(in srgb, var(--meo-base07) 8%, transparent);
+}
+
+.meo-export-alert-caution {
+  --meo-alert-color: var(--meo-base04);
+  border-left-color: var(--meo-base04);
+  background-color: color-mix(in srgb, var(--meo-base04) 8%, transparent);
+}
+
+.meo-export-alert,
+.meo-export-alert p,
+.meo-export-alert li,
+.meo-export-alert p *,
+.meo-export-alert li * {
+  color: var(--meo-alert-color);
+}
+
+.meo-export-alert-header {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5ch;
+  line-height: inherit;
+  padding-right: 0.5ch;
+  text-indent: 0;
+  vertical-align: baseline;
+}
+
+.meo-export-alert-icon {
+  display: inline-flex;
+  align-items: baseline;
+  flex: none;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+.meo-export-alert-note .meo-export-alert-icon {
+  color: var(--meo-base05);
+}
+
+.meo-export-alert-tip .meo-export-alert-icon {
+  color: var(--meo-base09);
+}
+
+.meo-export-alert-important .meo-export-alert-icon {
+  color: var(--meo-base08);
+}
+
+.meo-export-alert-warning .meo-export-alert-icon {
+  color: var(--meo-base07);
+}
+
+.meo-export-alert-caution .meo-export-alert-icon {
+  color: var(--meo-base04);
+}
+
+.meo-export-alert-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: none;
+  position: relative;
+  top: 0.08em;
+}
+
+.meo-export-alert-label {
+  display: inline-block;
+  font-weight: 500;
+  line-height: inherit;
+  margin-left: 2px;
+  text-indent: 0;
+  text-transform: uppercase;
+  vertical-align: baseline;
+}
+
+.meo-export-alert > p:first-child {
+  margin-top: 0;
+}
+
+.meo-export-alert > p:last-child {
+  margin-bottom: 0;
+}
+
+.meo-export-mermaid {
+  margin: 0 0 1em;
+  border-radius: 0;
+  border: 1px solid var(--meo-code-border);
+  background: var(--meo-code-bg);
+  overflow: hidden;
+}
+.meo-export-mermaid .meo-export-mermaid-svg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
+  overflow: auto;
+}
+.meo-export-mermaid .meo-export-mermaid-svg svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.meo-export-mermaid > pre.meo-export-code-block {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.meo-export-mermaid.is-math {
+  background: var(--meo-code-bg);
+}
+.meo-export-mermaid.is-math .meo-export-mermaid-svg {
+  padding: 24px 16px;
+}
+.meo-export-mermaid .katex-display {
+  margin: 0 !important;
+}
+.meo-export-mermaid .nodeLabel > div {
+  line-height: 1 !important;
+}
+.meo-export-mermaid .katex-html {
+  display: none;
+}
+.meo-export-mermaid.is-error {
+  border-color: var(--meo-mermaid-error-border);
+}
+.meo-export-mermaid.is-error::before {
+  content: 'Mermaid render failed';
+  display: block;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--meo-mermaid-error-fg);
+}
+.meo-export-mermaid.is-rendered pre { display: none; }
+
+/* highlight.js token colors */
+.hljs { color: var(--meo-fg); background: transparent; }
+.hljs-comment, .hljs-quote { color: var(--meo-muted); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-title.function_ { color: var(--meo-heading); }
+.hljs-string, .hljs-regexp { color: var(--meo-strong); }
+.hljs-number, .hljs-literal, .hljs-symbol { color: var(--meo-number); }
+.hljs-type, .hljs-class, .hljs-built_in, .hljs-function { color: var(--meo-accent-2); }
+.hljs-attr, .hljs-attribute, .hljs-property { color: var(--meo-quote); }
+.hljs-link { color: var(--meo-link); text-decoration: underline; }
+
+@media (max-width: 700px) {
+  .meo-export-page { padding: 12px; }
+  .meo-export-doc { padding: 16px; }
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .meo-export-page {
+    min-height: auto;
+  }
+  pre, blockquote, table, img, .meo-export-mermaid, .meo-export-math-display {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}</style>
+  </head>
+  <body>
+    <div class="meo-export-page">
+      <main id="meo-export-root" class="meo-export-doc">
+<h1>fPlaces Frontend Integration Guide</h1>
+<p style="margin-top: -10px; margin-bottom: 20px; color: var(--meo-muted);"><strong>Backend Engineer:</strong> <a href="https://linkedin.com/in/sunday-ajayi" target="_blank">Sunday Ajayi</a></p>
+<p>This guide breaks down the division of responsibilities between the stateless REST API (used for fetching static data and initiating actions) and the WebSocket layer (used exclusively for receiving real-time live updates).</p>
+<p>All REST endpoints require the <code>Authorization: Bearer &lt;access_token&gt;</code> header, and all WebSockets require the token to be passed as a query parameter <code>?token=&lt;access_token&gt;</code>.</p>
+<hr />
+<h1>PART 1: Fan / User Application</h1>
+<p>This section covers the standard mobile or web application used by venue visitors.</p>
+<h2>1. Setup, Authentication, &amp; Onboarding (REST)</h2>
+<p>The authentication flow uses SimpleJWT. The backend is stateless, so your client must store the <code>access</code> and <code>refresh</code> tokens securely.</p>
+<ul>
+<li><strong>Register</strong>: <code>POST /api/users/register/</code> (Provide <code>email</code> and <code>password</code>). User is created but <code>is_email_verified</code> is <code>False</code>.</li>
+<li><strong>Verify Email</strong>: <code>POST /api/users/verify-email/</code> (Provide <code>email</code> and the 6-digit <code>otp</code> sent to their email).</li>
+<li><strong>Profile Setup</strong>: <code>PATCH /api/users/me/</code> (Provide <code>pseudo_name</code>). Required before the user can post.</li>
+<li><strong>Standard Login</strong>: <code>POST /api/users/login/</code> (Provide <code>email</code> and <code>password</code>). Returns JWT tokens.</li>
+<li><strong>Google Login</strong>: <code>POST /api/users/login/google/</code> (Provide Google OAuth <code>id_token</code>). Automatically registers/logs in the user and returns the standard JWT tokens.</li>
+</ul>
+<h2>2. Venue Selection &amp; Initial Feed Load (REST)</h2>
+<p>When a user opens the app and selects a venue, fetch the historical state of that venue.</p>
+<ul>
+<li><strong>List Venues</strong>: <code>GET /api/forum/venues/</code> (Fetch available stadiums/arenas).</li>
+<li><strong>List Sections/Categories</strong>: <code>GET /api/forum/sections/?venue=&lt;venue_id&gt;</code> and <code>GET /api/forum/categories/</code>.</li>
+<li><strong>Fetch Initial Feed</strong>: <code>GET /api/forum/posts/?venue=&lt;venue_id&gt;</code> (Paginated historical posts).</li>
+</ul>
+<h2>3. The Live Feed &amp; Heatmap (WebSocket)</h2>
+<p>Immediately after fetching the initial feed, establish a WebSocket connection to the venue's room:<br />
+<code>ws://&lt;domain&gt;/ws/venues/&lt;venue_id&gt;/?token=&lt;access_token&gt;</code></p>
+<p>You <strong>never send data</strong> up this socket. It is purely for receiving live JSON broadcasts:</p>
+<ol>
+<li><strong><code>new_post</code></strong>:
+<ul>
+<li><strong>Payload</strong>: The full JSON object of the newly created post.</li>
+<li><strong>Action</strong>: Unshift/prepend it to your feed state.</li>
+</ul>
+</li>
+<li><strong><code>upvote_update</code></strong>:
+<ul>
+<li><strong>Payload</strong>: <code>{"post_id": 123, "upvotes_count": 5, "upvoted": true}</code></li>
+<li><strong>Action</strong>: Find post <code>123</code> in your state and update its count.</li>
+</ul>
+</li>
+<li><strong><code>post_hidden</code></strong>:
+<ul>
+<li><strong>Payload</strong>: <code>{"post_id": 123}</code></li>
+<li><strong>Action</strong>: Immediately remove post <code>123</code> from the UI.</li>
+</ul>
+</li>
+<li><strong><code>section_heat_update</code></strong>:
+<ul>
+<li><strong>Payload</strong>: <code>{"heatmap": [{"section_id": 4, "post_count": 8, "priority": "high"}, ...]}</code></li>
+<li><strong>Action</strong>: Overwrite your entire UI venue map state with this array. Map the <code>priority</code> string (<code>"high"</code>, <code>"medium"</code>, <code>"low"</code>) directly to your CSS glowing colors. Any missing section ID has 0 posts and is neutral.</li>
+</ul>
+</li>
+</ol>
+<h2>4. User Interactions (REST)</h2>
+<p>When the user <em>does</em> something, fire a REST request. If successful, the backend automatically broadcasts the result over the WebSocket.</p>
+<ul>
+<li><strong>Create Post</strong>: <code>POST /api/forum/posts/</code> (Provide <code>content</code> max 140 chars, <code>venue</code>, <code>category</code>, and optional <code>section</code>). <em>Triggers <code>new_post</code> and <code>section_heat_update</code> on the socket.</em></li>
+<li><strong>Toggle Upvote</strong>: <code>POST /api/forum/posts/&lt;post_id&gt;/upvote/</code>. This is idempotent. <em>Triggers <code>upvote_update</code> on the socket.</em></li>
+<li><strong>Flag Post</strong>: <code>POST /api/forum/posts/&lt;post_id&gt;/flag/</code> (Provide optional <code>reason</code>). If it hits 3 unique flags, it auto-hides and <em>Triggers <code>post_hidden</code> and <code>section_heat_update</code> on the socket.</em></li>
+</ul>
+<h2>5. Personal Notifications (WebSocket &amp; REST)</h2>
+<p>Users have a personal WebSocket for cross-venue, account-level alerts.</p>
+<ul>
+<li><strong>Connect</strong>: <code>ws://&lt;domain&gt;/ws/notifications/?token=&lt;access_token&gt;</code></li>
+<li><strong>WebSocket Event (<code>new_notification</code>)</strong>: Pushes a notification object in real-time so you can increment the unread badge count.</li>
+<li><strong>REST Fetch</strong>: <code>GET /api/notifications/</code> (List paginated notification history).</li>
+<li><strong>REST Mark Read</strong>: <code>POST /api/notifications/&lt;id&gt;/mark-read/</code> or <code>POST /api/notifications/mark-all-read/</code>.</li>
+</ul>
+<hr />
+<h1>PART 2: Admin / Moderator Dashboard</h1>
+<p>This section covers the web-based administrative panel used by staff. Accessing these endpoints requires an account with <code>is_staff=True</code> or <code>user_type=admin</code>.</p>
+<h2>1. Dashboard Authentication (REST)</h2>
+<p>Admins log in using the exact same login endpoints as users (<code>POST /api/users/login/</code>). Ensure your dashboard checks if the decoded JWT belongs to an admin before allowing entry.</p>
+<h2>2. Platform Statistics Overview (REST)</h2>
+<p>Used to render the charts and metric cards on the admin homepage.</p>
+<ul>
+<li><strong>Fetch Dashboard Stats</strong>: <code>GET /api/admin/stats/</code>
+<ul>
+<li><strong>Returns</strong>: Aggregated metrics including total registrations, verified users count, total posts/comments, and categorical breakdowns of activity.</li>
+</ul>
+</li>
+</ul>
+<h2>3. Content Moderation (REST)</h2>
+<p>Admins have elevated visibility into all content, including posts hidden from the public.</p>
+<ul>
+<li><strong>View Moderation Queue</strong>: <code>GET /api/admin/posts/flagged/</code>
+<ul>
+<li>Fetches posts sorted descending by <code>flags_count</code>. This is your primary moderation queue.</li>
+</ul>
+</li>
+<li><strong>Hide Post</strong>: <code>POST /api/admin/posts/&lt;post_id&gt;/hide/</code>
+<ul>
+<li>Removes the post from the public feed immediately. <em>Triggers the <code>post_hidden</code> and <code>section_heat_update</code> WebSocket events for active fans.</em></li>
+</ul>
+</li>
+<li><strong>Show/Unhide Post</strong>: <code>POST /api/admin/posts/&lt;post_id&gt;/show/</code>
+<ul>
+<li>Reverses a manual or auto-hide.</li>
+</ul>
+</li>
+<li><strong>Clear Flags</strong>: <code>POST /api/admin/posts/&lt;post_id&gt;/clear-flags/</code>
+<ul>
+<li>Resets a post's <code>flags_count</code> to <code>0</code> and archives the flag tickets after a moderator has reviewed it and deemed it safe.</li>
+</ul>
+</li>
+</ul>
+<h2>4. User Management (REST)</h2>
+<p>Complete control over user accounts.</p>
+<ul>
+<li><strong>List Users</strong>: <code>GET /api/admin/users/</code> (Fetch all users, paginated).</li>
+<li><strong>Archive User</strong>: <code>DELETE /api/admin/users/&lt;user_id&gt;/</code> (Soft-deletes the user, disabling their account).</li>
+<li><strong>Restore User</strong>: <code>POST /api/admin/users/&lt;user_id&gt;/restore/</code></li>
+<li><strong>Promote to Staff</strong>: Use standard <code>PUT</code> or <code>PATCH</code> on <code>/api/admin/users/&lt;user_id&gt;/</code> to set <code>user_type="admin"</code> or <code>is_staff=True</code>.</li>
+</ul>
+
+      </main>
+    </div>
+    
+    <script data-meo-export-runtime>
+(() => {
+  const root = document.getElementById('meo-export-root');
+  window.__MEO_EXPORT_READY__ = false;
+  window.__MEO_EXPORT_ERROR__ = null;
+  const MERMAID_DIAGRAM_START_RE = /^(?:flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|pie|mindmap|timeline|gitGraph|quadrantChart|requirementDiagram|c4Context|xychart(?:-beta)?|sankey-beta|block-beta|packet-beta|radar-beta)\b/i;
+  const MERMAID_DISPLAY_MATH_RE = /^\$\$[\s\S]*\$\$$/;
+  const MERMAID_DISPLAY_MATH_THEME_CSS =
+    '.nodeLabel > div{line-height:1 !important;margin:0 !important;padding:0 !important;}' +
+    '.katex-display{margin:0 !important;}' +
+    '.katex{line-height:1 !important;}';
+  const DISPLAY_MATH_LABEL_SELECTORS = [
+    '.nodeLabel .katex-mathml math',
+    '.nodeLabel .katex-display',
+    '.nodeLabel'
+  ];
+  const DISPLAY_MATH_TRIM_RETRY_DELAYS_MS = [80, 220];
+  const DISPLAY_MATH_VIEWBOX_PADDING = 2;
+
+  const escapeHtml = (value) => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const decodeSource = (value) => {
+    try {
+      const binary = atob(String(value || ''));
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    } catch {
+      return '';
+    }
+  };
+
+  const isDisplayMathDiagram = (diagramText) => MERMAID_DISPLAY_MATH_RE.test(String(diagramText || '').trim());
+
+  const compactDisplayMath = (diagramText) => {
+    const inner = String(diagramText || '').trim().slice(2, -2).trim();
+    const singleLine = inner
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .join(' ');
+    return '$$' + singleLine + '$$';
+  };
+
+  const escapeForMermaidLabel = (text) => String(text).replace(/\\/g, '\\\\').replace(/"/g, '\\\"');
+
+  const normalizeMermaidSource = (diagramText) => {
+    const text = String(diagramText || '');
+    const trimmed = text.trim();
+    if (!trimmed || MERMAID_DIAGRAM_START_RE.test(trimmed)) {
+      return text;
+    }
+    if (!isDisplayMathDiagram(trimmed)) {
+      return text;
+    }
+
+    const escapedMath = escapeForMermaidLabel(compactDisplayMath(trimmed));
+    const initConfig = JSON.stringify({
+      flowchart: { diagramPadding: 0 },
+      themeCSS: MERMAID_DISPLAY_MATH_THEME_CSS
+    });
+
+    return [
+      '%%{init: ' + initConfig + '}%%',
+      'flowchart LR',
+      '  MATH["' + escapedMath + '"]',
+      '  style MATH fill:transparent,stroke:transparent,stroke-width:0px',
+      '  classDef meoMath font-size:22px,padding:0px;',
+      '  class MATH meoMath'
+    ].join('\n');
+  };
+
+  const trimDisplayMathSvg = (svg) => {
+    if (!(svg instanceof SVGSVGElement)) {
+      return;
+    }
+
+    const applyTrim = () => {
+      const screenCtm = svg.getScreenCTM?.();
+      if (!screenCtm) {
+        return;
+      }
+      let inverse;
+      try {
+        inverse = screenCtm.inverse();
+      } catch {
+        return;
+      }
+
+      const points = DISPLAY_MATH_LABEL_SELECTORS
+        .map((selector) => svg.querySelector(selector))
+        .filter((node) => node instanceof Element)
+        .flatMap((node) => {
+          const rect = node.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) {
+            return [];
+          }
+
+          const transform = (x, y) => {
+            if (typeof DOMPoint === 'function') {
+              return new DOMPoint(x, y).matrixTransform(inverse);
+            }
+            const point = svg.createSVGPoint();
+            point.x = x;
+            point.y = y;
+            return point.matrixTransform(inverse);
+          };
+
+          return [
+            transform(rect.left, rect.top),
+            transform(rect.right, rect.top),
+            transform(rect.right, rect.bottom),
+            transform(rect.left, rect.bottom)
+          ];
+        });
+
+      let bbox = null;
+      if (points.length) {
+        const xs = points.map((point) => point.x);
+        const ys = points.map((point) => point.y);
+        bbox = {
+          x: Math.min(...xs),
+          y: Math.min(...ys),
+          width: Math.max(...xs) - Math.min(...xs),
+          height: Math.max(...ys) - Math.min(...ys)
+        };
+      } else if (typeof svg.getBBox === 'function') {
+        try {
+          const contentNode = svg.querySelector('.nodes') || svg;
+          bbox = contentNode.getBBox();
+        } catch {
+          bbox = null;
+        }
+      }
+
+      if (!bbox || bbox.width <= 0 || bbox.height <= 0) {
+        return;
+      }
+
+      const pad = DISPLAY_MATH_VIEWBOX_PADDING;
+      const x = bbox.x - pad;
+      const y = bbox.y - pad;
+      const width = bbox.width + pad * 2;
+      const height = bbox.height + pad * 2;
+      svg.setAttribute('viewBox', x + ' ' + y + ' ' + width + ' ' + height);
+      svg.setAttribute('width', String(width));
+      svg.setAttribute('height', String(height));
+    };
+
+    requestAnimationFrame(applyTrim);
+    for (const delay of DISPLAY_MATH_TRIM_RETRY_DELAYS_MS) {
+      setTimeout(applyTrim, delay);
+    }
+  };
+
+  const waitForImages = async () => {
+    const images = Array.from((root || document).querySelectorAll('img'));
+    if (!images.length) {
+      return;
+    }
+
+    await Promise.all(images.map((img) => {
+      if (img.complete) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          img.removeEventListener('load', finish);
+          img.removeEventListener('error', finish);
+          resolve();
+        };
+        img.addEventListener('load', finish, { once: true });
+        img.addEventListener('error', finish, { once: true });
+        setTimeout(finish, 10000);
+      });
+    }));
+  };
+
+  const getExportThemeVar = (name, fallback) => {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+  };
+
+  const resolveCssColor = (value, fallback, property) => {
+    const trimmed = String(value || '').trim();
+    if (!trimmed) return fallback;
+    const probe = document.createElement('span');
+    probe.style.position = 'absolute';
+    probe.style.visibility = 'hidden';
+    probe.style[property || 'backgroundColor'] = trimmed;
+    document.body.appendChild(probe);
+    const resolved = getComputedStyle(probe)[property || 'backgroundColor'];
+    probe.remove();
+    return resolved || fallback;
+  };
+
+  const clampColorChannel = (value) => Math.min(255, Math.max(0, Math.round(value)));
+  const clampAlpha = (value) => Math.min(1, Math.max(0, value));
+
+  const parseCssNumericChannel = (value, scale) => {
+    const trimmed = String(value || '').trim();
+    if (!trimmed || trimmed === 'none') return null;
+    if (trimmed.endsWith('%')) {
+      const percent = Number.parseFloat(trimmed.slice(0, -1));
+      return Number.isFinite(percent) ? (percent / 100) * scale : null;
+    }
+    const parsed = Number.parseFloat(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const parseCssAlpha = (value) => {
+    if (!value) return 1;
+    const parsed = parseCssNumericChannel(value, 1);
+    return parsed === null ? 1 : clampAlpha(parsed);
+  };
+
+  const formatMermaidRgb = (red, green, blue, alpha) => {
+    const r = clampColorChannel(red);
+    const g = clampColorChannel(green);
+    const b = clampColorChannel(blue);
+    const a = clampAlpha(alpha === undefined ? 1 : alpha);
+    if (a < 1) {
+      return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + Number(a.toFixed(3)) + ')';
+    }
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+  };
+
+  const normalizeRgbColor = (value) => {
+    const match = /^rgba?\(\s*(.+?)\s*\)$/i.exec(value);
+    if (!match || !match[1]) return null;
+    const parts = match[1].split('/').map((part) => part.trim());
+    const channels = (parts[0] || '').split(/[\s,]+/).filter(Boolean);
+    if (channels.length < 3) return null;
+    const red = parseCssNumericChannel(channels[0], 255);
+    const green = parseCssNumericChannel(channels[1], 255);
+    const blue = parseCssNumericChannel(channels[2], 255);
+    if (red === null || green === null || blue === null) return null;
+    const alpha = parts[1] ? parseCssAlpha(parts[1]) : parseCssAlpha(channels[3]);
+    return formatMermaidRgb(red, green, blue, alpha);
+  };
+
+  const normalizeSrgbColor = (value) => {
+    const match = /^color\(\s*srgb\s+(.+?)\s*\)$/i.exec(value);
+    if (!match || !match[1]) return null;
+    const parts = match[1].split('/').map((part) => part.trim());
+    const channels = (parts[0] || '').split(/\s+/).filter(Boolean);
+    if (channels.length < 3) return null;
+    const red = parseCssNumericChannel(channels[0], 1);
+    const green = parseCssNumericChannel(channels[1], 1);
+    const blue = parseCssNumericChannel(channels[2], 1);
+    if (red === null || green === null || blue === null) return null;
+    return formatMermaidRgb(red * 255, green * 255, blue * 255, parseCssAlpha(parts[1]));
+  };
+
+  const normalizeMermaidFallbackColor = (fallback) => {
+    const trimmed = String(fallback || '').trim();
+    if (!trimmed) return '#ffffff';
+    return normalizeRgbColor(trimmed) || normalizeSrgbColor(trimmed) || (/^color\(/i.test(trimmed) ? '#ffffff' : trimmed);
+  };
+
+  const normalizeMermaidColor = (value, fallback) => {
+    const trimmed = String(value || '').trim();
+    if (!trimmed) return normalizeMermaidFallbackColor(fallback);
+    const normalized = normalizeRgbColor(trimmed) || normalizeSrgbColor(trimmed);
+    if (normalized) return normalized;
+    if (/^(?:rgba?|color)\(/i.test(trimmed)) return normalizeMermaidFallbackColor(fallback);
+    return trimmed;
+  };
+
+  const getExportThemeColor = (name, fallback, property) => {
+    return normalizeMermaidColor(
+      resolveCssColor(getExportThemeVar(name, fallback), fallback, property || 'backgroundColor'),
+      fallback
+    );
+  };
+
+  const isProbablyDarkColor = (color) => {
+    const match = /rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i.exec(String(color || ''));
+    if (!match) return false;
+    const red = Number(match[1]);
+    const green = Number(match[2]);
+    const blue = Number(match[3]);
+    if (![red, green, blue].every(Number.isFinite)) return false;
+    return (red * 0.299 + green * 0.587 + blue * 0.114) < 128;
+  };
+
+  const getMermaidThemeConfig = () => {
+    const bodyStyles = getComputedStyle(document.body);
+    const background = getExportThemeColor('--meo-code-bg', bodyStyles.backgroundColor || '#ffffff');
+    const darkMode = isProbablyDarkColor(background);
+    const nodeBackground = darkMode
+      ? getExportThemeColor('--meo-panel-bg', '#2f343d')
+      : '#ffffff';
+    const foreground = darkMode
+      ? getExportThemeColor('--meo-fg', '#c9d1d9', 'color')
+      : '#1f2328';
+    const border = darkMode
+      ? getExportThemeColor('--meo-border', '#3e444d', 'color')
+      : '#d0d7de';
+    return {
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'base',
+      themeVariables: {
+        background,
+        mainBkg: nodeBackground,
+        secondBkg: nodeBackground,
+        tertiaryColor: nodeBackground,
+        primaryColor: nodeBackground,
+        primaryTextColor: foreground,
+        primaryBorderColor: border,
+        nodeBorder: border,
+        lineColor: border,
+        textColor: foreground,
+        nodeTextColor: foreground,
+        edgeLabelBackground: background,
+        clusterBkg: background,
+        clusterBorder: border,
+        titleColor: foreground,
+        darkMode
+      },
+      htmlLabels: true,
+      markdownAutoWrap: true,
+      flowchart: { htmlLabels: true },
+      legacyMathML: true,
+      forceLegacyMathML: true,
+      fontFamily: bodyStyles.fontFamily || undefined
+    };
+  };
+
+  const renderMermaidBlocks = async () => {
+    if (!false) {
+      return;
+    }
+
+    const blocks = Array.from(document.querySelectorAll('.meo-export-mermaid[data-source-b64]'));
+    if (!blocks.length) {
+      return;
+    }
+
+    const mermaidApi = window.mermaid;
+    if (!mermaidApi || typeof mermaidApi.render !== 'function') {
+      return;
+    }
+
+    try {
+      mermaidApi.initialize(getMermaidThemeConfig());
+    } catch {
+      // Continue with default Mermaid configuration.
+    }
+
+    let index = 0;
+    for (const block of blocks) {
+      const source = decodeSource(block.getAttribute('data-source-b64'));
+      if (!source) {
+        block.classList.add('is-error');
+        continue;
+      }
+
+      try {
+        const isMath = isDisplayMathDiagram(source);
+        if (isMath) {
+          block.classList.add('is-math');
+        }
+        const normalizedSource = normalizeMermaidSource(source);
+        const renderId = 'meo-export-mermaid-' + (++index);
+        const result = await mermaidApi.render(renderId, normalizedSource);
+        const svg = typeof result === 'string' ? result : (result && result.svg) || '';
+        if (!svg) {
+          throw new Error('Empty Mermaid SVG output');
+        }
+        block.classList.add('is-rendered');
+        block.innerHTML = '<div class="meo-export-mermaid-svg">' + svg + '</div>';
+        if (isMath) {
+          const svgEl = block.querySelector('svg');
+          trimDisplayMathSvg(svgEl);
+        }
+      } catch (error) {
+        block.classList.add('is-error');
+        block.innerHTML = '<pre class="meo-export-code-block"><code class="language-mermaid">' +
+          escapeHtml(source) + '</code></pre>';
+        block.setAttribute('data-meo-export-mermaid-error', String(error && error.message ? error.message : error || 'Mermaid render failed'));
+      }
+    }
+  };
+
+  const finalizeReady = () => {
+    window.__MEO_EXPORT_READY__ = true;
+    if (root) {
+      root.setAttribute('data-meo-export-ready', 'true');
+    }
+  };
+
+  const run = async () => {
+    try {
+      await renderMermaidBlocks();
+      await waitForImages();
+    } catch (error) {
+      window.__MEO_EXPORT_ERROR__ = String(error && error.message ? error.message : error || 'Export render failed');
+    } finally {
+      finalizeReady();
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { void run(); }, { once: true });
+  } else {
+    void run();
+  }
+})();
+    </script>
+  </body>
+</html>

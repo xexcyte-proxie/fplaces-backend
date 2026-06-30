@@ -6,6 +6,7 @@ from users.views.auth import (
     RegisterView,
     ResendVerificationView,
     VerifyEmailView,
+    GoogleLoginView,
 )
 from users.views.profile import ChangePasswordView, MeView
 
@@ -19,4 +20,5 @@ __all__ = [
     "LogoutView",
     "MeView",
     "ChangePasswordView",
+    "GoogleLoginView",
 ]

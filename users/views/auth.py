@@ -7,6 +7,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
 from core.serializers import DetailResponseSerializer
 from users.emails import send_password_reset_email, send_verification_email
 from users.serializers import (
@@ -18,6 +21,7 @@ from users.serializers import (
     RegisterSerializer,
     ResendVerificationSerializer,
     UserSerializer,
+    GoogleLoginSerializer,
 )
 
 User = get_user_model()
@@ -115,6 +119,57 @@ class RegisterView(generics.CreateAPIView):
 )
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
+
+
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Auth"],
+        summary="Log in via Google",
+        description=(
+            "Validates the provided Google `id_token`. If the email is new, creates "
+            "an account and marks it verified. Returns a standard JWT pair and the user profile."
+        ),
+        request=GoogleLoginSerializer,
+        responses={200: EmailTokenObtainPairSerializer, 400: DetailResponseSerializer},
+    )
+)
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = GoogleLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data["id_token"]
+
+        try:
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
+            email = idinfo.get("email")
+            if not email:
+                return Response({"detail": "Google token does not contain an email."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = User.all_objects.filter(email__iexact=email).first()
+            if not user:
+                user = User.objects.create_user(
+                    email=email,
+                    password=User.objects.make_random_password(length=14),
+                    user_type=User.UserType.REGULAR_USER,
+                )
+            
+            if not user.is_email_verified:
+                user.is_email_verified = True
+                user.save(update_fields=["is_email_verified", "updated_at"])
+
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "user": UserSerializer(user).data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValueError:
+            return Response({"detail": "Invalid Google token."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema_view(

@@ -11,6 +11,7 @@ from users.views import (
     RegisterView,
     ResendVerificationView,
     VerifyEmailView,
+    GoogleLoginView,
 )
 
 app_name = "users"
@@ -20,6 +21,7 @@ urlpatterns = [
     path("verify-email/", VerifyEmailView.as_view(), name="verify-email"),
     path("resend-verification/", ResendVerificationView.as_view(), name="resend-verification"),
     path("login/", EmailTokenObtainPairView.as_view(), name="login"),
+    path("login/google/", GoogleLoginView.as_view(), name="login-google"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset"),
