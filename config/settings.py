@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "forum",
     "notifications",
     "payments",
+    "map",
 ]
 
 MIDDLEWARE = [
@@ -228,3 +229,6 @@ FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
 # Resend API. With no key set (e.g. local dev), it logs the email instead of sending.
 RESEND_API_KEY = env("RESEND_API_KEY", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@fplaces.app")
+
+MAPPEDIN_KEY = env("MAPPEDIN_KEY", default="")
+MAPPEDIN_SECRET = env("MAPPEDIN_SECRET", default="")

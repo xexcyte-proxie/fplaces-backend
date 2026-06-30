@@ -17,6 +17,7 @@ urlpatterns = [
     path("api/users/", include("users.urls")),
     path("api/forum/", include("forum.urls")),
     path("api/notifications/", include("notifications.urls")),
+    path("", include("map.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/guide.html", guide_view, name="guide"),

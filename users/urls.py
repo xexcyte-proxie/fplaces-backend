@@ -14,6 +14,12 @@ from users.views import (
     GoogleLoginView,
 )
 
+from drf_spectacular.utils import extend_schema_view, extend_schema
+
+@extend_schema_view(post=extend_schema(tags=["Auth"]))
+class AuthTokenRefreshView(TokenRefreshView):
+    pass
+
 app_name = "users"
 
 urlpatterns = [
@@ -22,7 +28,7 @@ urlpatterns = [
     path("resend-verification/", ResendVerificationView.as_view(), name="resend-verification"),
     path("login/", EmailTokenObtainPairView.as_view(), name="login"),
     path("login/google/", GoogleLoginView.as_view(), name="login-google"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("token/refresh/", AuthTokenRefreshView.as_view(), name="token-refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset"),
     path("password-reset-confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
