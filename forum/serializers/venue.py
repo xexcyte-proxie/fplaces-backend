@@ -11,7 +11,7 @@ class VenueSerializer(BaseSerializer):
             "location",
             "latitude",
             "longitude",
-            "mappedin_key",
+            "mappedin_map_id",
             "notes",
             "created_at",
             "updated_at",
@@ -22,5 +22,5 @@ class VenueSerializer(BaseSerializer):
             "location": {"help_text": "Free-text address/location."},
             "latitude": {"help_text": "Reserved for future GPS auto-suggest."},
             "longitude": {"help_text": "Reserved for future GPS auto-suggest."},
-            "mappedin_key": {"help_text": "External key for Mappedin integration."},
+            "mappedin_map_id": {"help_text": "External key for Mappedin integration."},
         }
