@@ -215,6 +215,7 @@ def root_view(request):
             <div class="button-group">
                 <a href="/api/docs/" class="btn">Swagger Docs</a>
                 <a href="/api/redoc/" class="btn btn-outline">ReDoc</a>
+                <a href="/api/guide.html" class="btn btn-outline" style="border-color: #8b949e; color: #8b949e;">Integration Guide</a>
             </div>
         </div>
     </div>
