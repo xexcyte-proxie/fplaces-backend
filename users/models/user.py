@@ -25,6 +25,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     is_email_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    interests = models.JSONField(blank=True, null=True)
 
     objects = UserManager()
     all_objects = models.Manager()

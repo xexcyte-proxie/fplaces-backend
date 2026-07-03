@@ -19,6 +19,7 @@ class UserSerializer(BaseSerializer):
             "avatar_url",
             "user_type",
             "is_email_verified",
+            "interests",
             "created_at",
             "updated_at",
         ]
