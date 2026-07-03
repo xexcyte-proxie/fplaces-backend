@@ -7,6 +7,12 @@ User = get_user_model()
 
 
 class UserSerializer(BaseSerializer):
+    interests = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        allow_null=True,
+        help_text="List of user interests.",
+    )
     class Meta:
         model = User
         fields = [
@@ -23,6 +29,7 @@ class UserSerializer(BaseSerializer):
             "created_at",
             "updated_at",
         ]
+        
         read_only_fields = ["id", "email", "user_type", "is_email_verified"]
         extra_kwargs = {
             "pseudo_name": {
