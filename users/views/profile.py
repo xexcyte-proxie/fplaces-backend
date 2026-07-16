@@ -25,13 +25,21 @@ from users.serializers import ChangePasswordSerializer, UserSerializer
         description="Partial update of the authenticated user's profile — typically "
         "used to set `pseudo_name` during onboarding, after email verification.",
     ),
+    delete=extend_schema(
+        tags=["Users"],
+        summary="Delete the current user's account",
+        description="Permanently deletes the authenticated user's account and all associated data.",
+    ),
 )
-class MeView(generics.RetrieveUpdateAPIView):
+class MeView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
+    def perform_destroy(self, instance):
+        instance.archive()
 
 
 @extend_schema_view(

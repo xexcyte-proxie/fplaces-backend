@@ -42,3 +42,27 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     @property
     def display_name(self):
         return self.pseudo_name or self.email.split("@")[0]
+
+    def archive(self):
+        super().archive()
+        
+        # GDPR / Privacy compliance: Anonymize personal identifiable information
+        self.is_active = False
+        self.first_name = ""
+        self.last_name = ""
+        self.bio = ""
+        self.avatar_url = ""
+        
+        # Use pseudo_name and email safely without hitting max_length constraints
+        self.pseudo_name = f"deleted_{self.id}"
+        self.email = f"deleted_{self.id}@anonymized.local"
+        
+        self.save(update_fields=[
+            "is_active", 
+            "first_name", 
+            "last_name", 
+            "bio", 
+            "avatar_url", 
+            "pseudo_name", 
+            "email"
+        ])
