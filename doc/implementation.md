@@ -1,11 +1,13 @@
-# fPlaces - Implementation Document
+# fplaces - Implementation Document
 
-This document details the internal technical structure, database design, and key components of the fPlaces application.
+This document details the internal technical structure, database design, and key components of the fplaces application.
 
 ---
 
 ## 1. System Architecture & Tech Stack
-fPlaces is a decoupled real-time backend platform built using the following stack:
+
+fplaces is a decoupled real-time backend platform built using the following stack:
+
 - **Programming Language**: Python 3.12+
 - **Web & API Framework**: Django 6.0+ & Django REST Framework (DRF) 3.17+
 - **Asynchronous & WebSocket Layer**: Django Channels 4.3+ & Daphne ASGI Server
@@ -18,10 +20,13 @@ fPlaces is a decoupled real-time backend platform built using the following stac
 ---
 
 ## 2. Django Project App Structure
+
 The codebase is divided into modular Django apps:
 
 ### 2.1 `core`
+
 Provides base classes, utilities, and middleware shared across all apps:
+
 - `BaseModel`: Abstract model providing `created_at`, `updated_at`, and soft-delete (`is_archived`) fields.
 - `BaseManager` / `BaseQuerySet`: Automatically filters out soft-deleted/archived records by default.
 - `custom_exception_handler`: Standardizes all API error responses into a consistent envelope structure.
@@ -29,7 +34,9 @@ Provides base classes, utilities, and middleware shared across all apps:
 - `consumers.py` & `realtime.py`: Implements base WebSocket consumer logic and channels broadcast wrappers.
 
 ### 2.2 `users`
+
 Manages users, authentication, onboarding, and admin dashboards:
+
 - `User`: Custom user model inheriting from `AbstractBaseUser` and `PermissionsMixin`. Uses `email` as the primary identifier instead of a username.
 - `EmailVerificationOTP`: Model holding a 6-digit verification code associated with a user, with an expiry field. Registered in the Django admin panel (`users/admin.py`).
 - `UserManager`: Custom manager handling user creation and exclusion of archived profiles.
@@ -41,7 +48,9 @@ Manages users, authentication, onboarding, and admin dashboards:
   - `AdminUserViewSet`: Restricted API viewset for user administration (suspension/archival, restoration, and staff privilege toggles).
 
 ### 2.3 `forum`
+
 Implements the core location-based discussion board:
+
 - `Venue`: Physical locations (stadiums/arenas) where posts are scoped.
 - `Section`: Physical subsections of a venue (e.g. "Gate 4", "Family Stand").
 - `Category`: Categories for grouping posts ("Lines and Crowds", "Food and Drinks", "Fan Vibe", "Help").
@@ -55,7 +64,9 @@ Implements the core location-based discussion board:
   - `AdminPostViewSet`: Viewset for post moderation, including hide/show actions, flagged posts filter, flag-clearing, and soft-delete/restoration.
 
 ### 2.4 `notifications`
+
 Handles notification persistence and delivery:
+
 - `Notification`: Stores actions (`comment`, `upvote`, `moderation`) by an `actor` towards a `recipient`.
 - `services/mail.py`: Directs outbound email via the Resend API. Supports redirecting all messages to a single `SEND_TO_EMAIL` address during testing.
 - `consumers.py`: Real-time WebSocket connection to push notifications to active users.
@@ -65,6 +76,7 @@ Handles notification persistence and delivery:
 ## 3. Database Schema Design (Entity-Relationship)
 
 ### 3.1 `users.User`
+
 - `id` (int, PK)
 - `email` (varchar, unique)
 - `password` (varchar)
@@ -77,6 +89,7 @@ Handles notification persistence and delivery:
 - `updated_at` (datetime)
 
 ### 3.2 `users.EmailVerificationOTP`
+
 - `id` (int, PK)
 - `user_id` (int, FK to User, unique)
 - `otp_code` (varchar)
@@ -86,6 +99,7 @@ Handles notification persistence and delivery:
 - `updated_at` (datetime)
 
 ### 3.3 `forum.Venue`
+
 - `id` (int, PK)
 - `name` (varchar, unique)
 - `location` (varchar)
@@ -95,6 +109,7 @@ Handles notification persistence and delivery:
 - `is_archived` (boolean)
 
 ### 3.4 `forum.Section`
+
 - `id` (int, PK)
 - `venue_id` (int, FK to Venue)
 - `name` (varchar)
@@ -103,6 +118,7 @@ Handles notification persistence and delivery:
 - `is_archived` (boolean)
 
 ### 3.5 `forum.Category`
+
 - `id` (int, PK)
 - `name` (varchar, unique)
 - `slug` (varchar, unique)
@@ -113,6 +129,7 @@ Handles notification persistence and delivery:
 - `is_archived` (boolean)
 
 ### 3.6 `forum.Post`
+
 - `id` (int, PK)
 - `user_id` (int, FK to User)
 - `venue_id` (int, FK to Venue)
@@ -127,6 +144,7 @@ Handles notification persistence and delivery:
 - `updated_at` (datetime)
 
 ### 3.7 `forum.Comment`
+
 - `id` (int, PK)
 - `post_id` (int, FK to Post)
 - `user_id` (int, FK to User)
@@ -136,6 +154,7 @@ Handles notification persistence and delivery:
 - `updated_at` (datetime)
 
 ### 3.8 `notifications.Notification`
+
 - `id` (int, PK)
 - `recipient_id` (int, FK to User)
 - `actor_id` (int, FK to User, nullable)

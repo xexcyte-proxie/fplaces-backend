@@ -137,7 +137,7 @@ data "archive_file" "dummy_payload" {
 def handler(event, context):
     return {
         "statusCode": 200,
-        "body": "Hello from fPlaces Terraform!"
+        "body": "Hello from fplaces Terraform!"
     }
 EOF
     filename = "main.py"

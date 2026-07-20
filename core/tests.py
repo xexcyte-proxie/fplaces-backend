@@ -8,4 +8,4 @@ class RootViewTests(APITestCase):
         url = reverse("root")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(b"fPlaces is live", response.content)
+        self.assertIn(b"fplaces is live", response.content)

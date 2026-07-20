@@ -163,7 +163,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "fPlaces API",
+    "TITLE": "fplaces API",
     "DESCRIPTION": (
         "Real-time, venue-based social platform API.\n\n"
         "Fans inside the same stadium/venue share a live feed tied to physical sections: "
@@ -207,7 +207,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "Notifications", "description": "Per-user notification inbox, also pushed live over WebSocket."},
         {"name": "Admin", "description": "Administrative metrics, moderation controls, and user management."},
     ],
-    "CONTACT": {"name": "fPlaces", "email": "support@fplaces.app"},
+    "CONTACT": {"name": "fplaces", "email": "support@fplaces.app"},
     "LICENSE": {"name": "Proprietary"},
 }
 
@@ -222,7 +222,7 @@ SIMPLE_JWT = {
 }
 
 
-PROJECT_NAME = "fPlaces"
+PROJECT_NAME = "fplaces"
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
 
 # All outbound mail is sent through notifications.services.mail, which calls the

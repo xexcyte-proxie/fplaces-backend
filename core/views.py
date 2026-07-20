@@ -17,7 +17,7 @@ def root_view(request):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fPlaces is Live</title>
+    <title>fplaces is Live</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -210,7 +210,7 @@ def root_view(request):
                 <span class="status-dot"></span>
                 System Status
             </div>
-            <h1>fPlaces is live</h1>
+            <h1>fplaces is live</h1>
             <p>The real-time, venue-scoped social platform API and engine are running smoothly.</p>
             <div class="button-group">
                 <a href="/api/docs/" class="btn">Swagger Docs</a>

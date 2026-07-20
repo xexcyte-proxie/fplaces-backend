@@ -1,4 +1,4 @@
-# fPlaces - Implementation & User Flow Document
+# fplaces - Implementation & User Flow Document
 
 This document outlines the workflows and sequences of interactions between users, the REST API, the WebSocket server, and backend services.
 
@@ -77,6 +77,7 @@ sequenceDiagram
 ## 3. Post Interaction Flow (Upvoting & Flagging)
 
 ### 3.1 Upvoting (Idempotent Toggle)
+
 - User requests to upvote a post.
 - If a `PostVote` record for `(post, user)` does not exist:
   - Create it.
@@ -92,6 +93,7 @@ sequenceDiagram
   - Broadcast an `upvote_update` event (`upvoted=True`).
 
 ### 3.2 Flagging (Moderation Request)
+
 - User flags a post for moderation with a `reason`.
 - Database atomically creates or restores the `PostFlag` record for `(post, user)`.
 - If new or restored, the post's `flags_count` is incremented.
@@ -125,6 +127,7 @@ sequenceDiagram
 ---
 
 ## 5. In-App Notifications Flow
+
 Notifications are created synchronously and dispatched immediately over the user's personal WebSocket.
 
 1. **Trigger Action**: User A comments on User B's post.
@@ -142,11 +145,13 @@ Notifications are created synchronously and dispatched immediately over the user
 Dedicated administrative actions permit complete dashboard customization and system moderation.
 
 ### 6.1 Admin Stats Check
+
 - Admin opens Dashboard -> Client hits `GET /api/admin/stats/`.
 - Backend aggregates metrics across Users, Posts, Comments, and active Venues, querying specific post counts per category and venue.
 - Returns dashboard statistics package to Admin.
 
 ### 6.2 Flagged Content Moderation
+
 - Admin retrieves the moderation queue via `GET /api/admin/posts/flagged/` (sorted by flag count descending).
 - Admin reviews a flagged post and clicks **Clear Flags**.
 - Client calls `POST /api/admin/posts/{id}/clear-flags/`.

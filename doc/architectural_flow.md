@@ -1,12 +1,12 @@
-# fPlaces - Architectural Flow Document
+# fplaces - Architectural Flow Document
 
-This document describes the high-level architecture, deployment layout, request-response routing path, and file structures of the fPlaces application.
+This document describes the high-level architecture, deployment layout, request-response routing path, and file structures of the fplaces application.
 
 ---
 
 ## 1. System Components Architecture
 
-fPlaces uses an asynchronous server architecture to handle both REST HTTP endpoints and long-lived WebSocket connections concurrently.
+fplaces uses an asynchronous server architecture to handle both REST HTTP endpoints and long-lived WebSocket connections concurrently.
 
 ```mermaid
 graph TD
@@ -16,7 +16,7 @@ graph TD
     subgraph Django ASGI Stack
         WebServer --> Middleware[LogRequest & Auth Middleware]
         Middleware --> Router{ASGI Protocol router}
-        
+
         Router -->|http| WSGI[DRF Views & ViewSets]
         Router -->|websocket| ASGI[Channels consumers.py]
     end
@@ -37,6 +37,7 @@ graph TD
 ## 2. Request-Response Lifecycles
 
 ### 2.1 HTTP Request Lifecycle (REST)
+
 1. **Client Request**: Client sends an HTTP request (e.g. `POST /api/forum/posts/` with a JWT header).
 2. **Server (Daphne)**: Daphne receives the request and wraps it in a WSGI/ASGI request object.
 3. **Middleware**:
@@ -52,6 +53,7 @@ graph TD
 7. **Response**: A JSON response is serialized and returned to Daphne, which sends it back to the client.
 
 ### 2.2 WebSocket Lifecycle (Real-Time Broadcasts)
+
 1. **Connection**: Client requests a WebSocket connection to `ws/venues/<venue_id>/?token=<access_token>`.
 2. **Authentication**: `core/middleware.py` intercepts the connection, extracts the token from the query parameters, verifies it, and attaches the user to the connection scope. If invalid/anonymous, the connection is closed.
 3. **Channel Group Joining**: The `VenueConsumer` joins the matching venue channel group (e.g., `venue_<venue_id>`).
@@ -65,7 +67,7 @@ graph TD
 ## 3. Backend Codebase Directory Map
 
 ```text
-fPlaces/
+fplaces/
 ├── manage.py                   # Django CLI administration entry point
 ├── config/                     # Core project settings and configurations
 │   ├── settings.py             # Database, apps, middlewares, simpleJWT, and Resend settings

@@ -30,8 +30,8 @@ templates_to_test = [
     },
     {
         "template_name": "welcome.html", 
-        "subject": "Smoke Test: Welcome to fPlaces!",
-        "text": "Welcome to fPlaces, Sunday Ajayi!",
+        "subject": "Smoke Test: Welcome to fplaces!",
+        "text": "Welcome to fplaces, Sunday Ajayi!",
         "context": {"user_display_name": "Sunday Ajayi"}
     },
 ]
