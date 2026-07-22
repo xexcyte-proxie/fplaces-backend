@@ -5,7 +5,7 @@
 {% block content %}
   <h1 style="margin:0 0 16px; color:#000000; font-size:22px; font-weight:700;">Welcome to {{ project_name }}!</h1>
   <p style="margin:0 0 16px; color:#000000; font-size:15px; line-height:1.6;">
-    Hi there,
+    Hi {{ user.pseudo_name|default:user.first_name|default:"there" }},
   </p>
   <p style="margin:0 0 16px; color:#000000; font-size:15px; line-height:1.6;">
     Your email has been successfully verified! We're absolutely thrilled to have you join our community.

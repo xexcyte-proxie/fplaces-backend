@@ -48,10 +48,10 @@ def send_welcome_email(user):
         to=user.email,
         subject=f"Welcome to {settings.PROJECT_NAME}!",
         template_name="welcome.html",
-        context={"frontend_url": settings.FRONTEND_URL},
+        context={"frontend_url": settings.FRONTEND_URL, "user": user},
         text=(
             f"Welcome to {settings.PROJECT_NAME}!\n\n"
-            f"Hi,\n\n"
+            f"Hi {user.pseudo_name or user.first_name or 'there'},\n\n"
             f"Your email has been successfully verified! We're thrilled to have you join our community.\n\n"
             f"Visit {settings.FRONTEND_URL} to get started, choose your pseudo name, and join a live feed!"
         ),
