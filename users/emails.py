@@ -46,13 +46,14 @@ def send_password_reset_email(user):
 def send_welcome_email(user):
     send_template_email(
         to=user.email,
-        subject=f"Welcome to {settings.PROJECT_NAME}!",
+        subject="You are in. Welcome to fplaces.",
         template_name="welcome.html",
         context={"frontend_url": settings.FRONTEND_URL, "user": user},
         text=(
-            f"Welcome to {settings.PROJECT_NAME}!\n\n"
             f"Hi {user.pseudo_name or user.first_name or 'there'},\n\n"
-            f"Your email has been successfully verified! We're thrilled to have you join our community.\n\n"
-            f"Visit {settings.FRONTEND_URL} to get started, choose your pseudo name, and join a live feed!"
+            f"Find your seat. Find the action. See what is happening in your section before you even get there.\n\n"
+            f"Head back into the app to explore your venue, navigate in AR, and join the conversation with fans around you.\n\n"
+            f"fplaces — Find places. Find people. Find your way.\n\n"
+            f"Visit {settings.FRONTEND_URL} to get started."
         ),
     )
