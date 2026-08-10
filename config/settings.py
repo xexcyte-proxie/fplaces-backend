@@ -232,3 +232,10 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@fplaces.app")
 
 MAPPEDIN_KEY = env("MAPPEDIN_KEY", default="")
 MAPPEDIN_SECRET = env("MAPPEDIN_SECRET", default="")
+
+# Guest access
+# GUEST_TOKEN_EXPIRATION: lifetime of the short-lived JWT returned to guests.
+GUEST_TOKEN_EXPIRATION = timedelta(minutes=env.int("GUEST_TOKEN_EXPIRATION_MINUTES", default=60))
+# GUEST_TRIAL_PERIOD_HOURS: total trial window per device fingerprint.
+GUEST_TRIAL_PERIOD_HOURS = env.int("GUEST_TRIAL_PERIOD_HOURS", default=24)
+

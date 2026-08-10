@@ -8,6 +8,7 @@ from users.views.auth import (
     VerifyEmailView,
     GoogleLoginView,
 )
+from users.views.guest import GuestAccessView
 from users.views.profile import ChangePasswordView, MeView
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "MeView",
     "ChangePasswordView",
     "GoogleLoginView",
+    "GuestAccessView",
 ]

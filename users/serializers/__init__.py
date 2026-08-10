@@ -9,6 +9,7 @@ from users.serializers.auth import (
     RegisterSerializer,
     ResendVerificationSerializer,
 )
+from users.serializers.guest import GuestAccessSerializer
 from users.serializers.profile import PublicUserSerializer, UserSerializer
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     "LogoutSerializer",
     "EmailTokenObtainPairSerializer",
     "GoogleLoginSerializer",
+    "GuestAccessSerializer",
     "UserSerializer",
     "PublicUserSerializer",
 ]
