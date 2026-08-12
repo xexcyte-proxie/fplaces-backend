@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.db import models
@@ -30,6 +30,12 @@ class GuestSession(models.Model):
         default=False,
         help_text="Whether the guest has tried the 2D view feature.",
     )
+    date_of_usage = models.DateField(
+        auto_now_add=True,
+        null=True,
+        blank=True,
+        help_text="The date this guest session was created and is valid for.",
+    )
     trial_started_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(auto_now=True)
 
@@ -47,9 +53,12 @@ class GuestSession(models.Model):
 
     @property
     def trial_expires_at(self):
-        hours = getattr(settings, "GUEST_TRIAL_PERIOD_HOURS", 24)
-        return self.trial_started_at + timedelta(hours=hours)
+        days = getattr(settings, "GUEST_TRIAL_PERIOD_DAYS", 1)
+        days_offset = max(0, days - 1)
+        usage_date = self.date_of_usage or self.trial_started_at.date()
+        expire_date = usage_date + timedelta(days=days_offset)
+        return timezone.make_aware(datetime.combine(expire_date, time.max))
 
     @property
     def is_trial_active(self):
-        return timezone.now() < self.trial_expires_at
+        return timezone.now() <= self.trial_expires_at

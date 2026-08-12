@@ -19,9 +19,9 @@ class GuestAccessView(APIView):
     """
     Issue a short-lived guest JWT and MappedIn keys in a single round-trip.
 
-    The trial window (`GUEST_TRIAL_PERIOD_HOURS`) is tracked per device
-    fingerprint.  Once the window expires the client receives a `403` and
-    should prompt the user to create a full account.
+    The trial window is tracked per device fingerprint and is valid for the 
+    calendar day of first usage. Once the day expires, the client receives 
+    a `403` and should prompt the user to create a full account.
     """
 
     permission_classes = [permissions.AllowAny]
@@ -33,10 +33,9 @@ class GuestAccessView(APIView):
             "Accepts an `ip_address` and `device_fingerprint` and returns a "
             "short-lived guest JWT (lifetime controlled by `GUEST_TOKEN_EXPIRATION_MINUTES`, "
             "default 60 min) together with the MappedIn API keys needed to render the map.\n\n"
-            "The guest trial window (`GUEST_TRIAL_PERIOD_HOURS`, default 24 h) is measured from "
-            "the **first** call for a given `device_fingerprint`.  Subsequent calls within "
-            "that window re-issue a fresh JWT without resetting the clock.  "
-            "Once the window expires the server returns `403`.\n\n"
+            "The guest trial window is valid for the **same calendar day** of the first call "
+            "for a given `device_fingerprint`. Subsequent calls on the same day re-issue a "
+            "fresh JWT. If accessed on a subsequent day, the server returns `403`.\n\n"
             "The returned `access` token can be used as `Authorization: Bearer <token>` "
             "on any endpoint that accepts `IsAuthenticatedOrGuest` permission. "
             "The token carries `token_type=guest` in its payload."

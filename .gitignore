@@ -22,3 +22,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 *.zip
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+pytest.ini
