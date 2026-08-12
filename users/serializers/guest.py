@@ -18,4 +18,17 @@ class GuestSessionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         from users.models import GuestSession
         model = GuestSession
-        fields = ["has_tried_ar_view", "has_tried_2d_view"]
+        fields = ["has_tried_ar_view", "has_tried_2d_view", "trial_started_at", "trial_expires_at"]
+        read_only_fields = ["trial_started_at", "trial_expires_at"]
+
+    def update(self, instance, validated_data):
+        from django.utils import timezone
+        
+        has_tried_2d_before = instance.has_tried_2d_view
+        instance = super().update(instance, validated_data)
+        
+        if not has_tried_2d_before and instance.has_tried_2d_view and not instance.trial_started_at:
+            instance.trial_started_at = timezone.now()
+            instance.save(update_fields=["trial_started_at"])
+            
+        return instance

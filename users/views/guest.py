@@ -157,6 +157,7 @@ class GuestAccessView(APIView):
                 "access": str(token),
                 "token_type": "guest",
                 "expires_in": expires_in_seconds,
+                "trial_started_at": guest_session.trial_started_at,
                 "trial_expires_at": guest_session.trial_expires_at,
                 "has_tried_ar_view": guest_session.has_tried_ar_view,
                 "has_tried_2d_view": guest_session.has_tried_2d_view,
@@ -170,6 +171,7 @@ class GuestSessionUpdateView(APIView):
     """
     Get or update guest session fields like has_tried_ar_view or has_tried_2d_view.
     """
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def _get_guest_session(self, request):
@@ -179,7 +181,8 @@ class GuestSessionUpdateView(APIView):
             
         token_string = auth_header.split(' ')[1]
         try:
-            token = AccessToken(token_string)
+            from rest_framework_simplejwt.tokens import UntypedToken
+            token = UntypedToken(token_string)
         except Exception:
             raise serializers.ValidationError({"detail": "Invalid or expired token."})
             

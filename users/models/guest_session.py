@@ -30,13 +30,11 @@ class GuestSession(models.Model):
         default=False,
         help_text="Whether the guest has tried the 2D view feature.",
     )
-    date_of_usage = models.DateField(
-        auto_now_add=True,
+    trial_started_at = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="The date this guest session was created and is valid for.",
+        help_text="The exact datetime the trial started (when the 2D view was first accessed).",
     )
-    trial_started_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -53,12 +51,13 @@ class GuestSession(models.Model):
 
     @property
     def trial_expires_at(self):
+        if not self.trial_started_at:
+            return None
         days = getattr(settings, "GUEST_TRIAL_PERIOD_DAYS", 1)
-        days_offset = max(0, days - 1)
-        usage_date = self.date_of_usage or self.trial_started_at.date()
-        expire_date = usage_date + timedelta(days=days_offset)
-        return timezone.make_aware(datetime.combine(expire_date, time.max))
+        return self.trial_started_at + timedelta(days=days)
 
     @property
     def is_trial_active(self):
+        if not self.trial_started_at:
+            return True
         return timezone.now() <= self.trial_expires_at
