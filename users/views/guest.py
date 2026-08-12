@@ -52,6 +52,8 @@ class GuestAccessView(APIView):
                         "token_type": serializers.CharField(),
                         "expires_in": serializers.IntegerField(),
                         "trial_expires_at": serializers.DateTimeField(),
+                        "has_tried_ar_view": serializers.BooleanField(),
+                        "has_tried_2d_view": serializers.BooleanField(),
                         "mappedin": inline_serializer(
                             name="GuestMappedInData",
                             fields={
@@ -82,6 +84,8 @@ class GuestAccessView(APIView):
                     "token_type": "guest",
                     "expires_in": 3600,
                     "trial_expires_at": "2026-08-11T21:17:00Z",
+                    "has_tried_ar_view": False,
+                    "has_tried_2d_view": False,
                     "mappedin": {
                         "token": "<mappedin-access-token>",
                         "expires_in": 3600,
@@ -155,6 +159,8 @@ class GuestAccessView(APIView):
                 "token_type": "guest",
                 "expires_in": expires_in_seconds,
                 "trial_expires_at": guest_session.trial_expires_at,
+                "has_tried_ar_view": guest_session.has_tried_ar_view,
+                "has_tried_2d_view": guest_session.has_tried_2d_view,
                 "mappedin": mappedin_data,
             },
             status=status.HTTP_200_OK,
@@ -163,9 +169,65 @@ class GuestAccessView(APIView):
 
 class GuestSessionUpdateView(APIView):
     """
-    Update guest session fields like has_tried_ar_view or has_tried_2d_view.
+    Get or update guest session fields like has_tried_ar_view or has_tried_2d_view.
     """
     permission_classes = [permissions.AllowAny]
+
+    def _get_guest_session(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Bearer '):
+            raise serializers.ValidationError({"detail": "Authentication credentials were not provided."})
+            
+        token_string = auth_header.split(' ')[1]
+        try:
+            token = AccessToken(token_string)
+        except Exception:
+            raise serializers.ValidationError({"detail": "Invalid or expired token."})
+            
+        if token.get('token_type') != 'guest':
+            raise serializers.ValidationError({"detail": "Not a valid guest token."})
+            
+        device_fingerprint = token.get('device_fingerprint')
+        if not device_fingerprint:
+            raise serializers.ValidationError({"detail": "Guest token missing device fingerprint."})
+            
+        try:
+            return GuestSession.objects.get(device_fingerprint=device_fingerprint)
+        except GuestSession.DoesNotExist:
+            raise serializers.ValidationError({"detail": "Guest session not found."})
+
+    @extend_schema(
+        tags=["Auth"],
+        summary="Get guest session preferences",
+        responses={200: inline_serializer(
+            name="GuestSessionResponse",
+            fields={
+                "has_tried_ar_view": serializers.BooleanField(),
+                "has_tried_2d_view": serializers.BooleanField(),
+            },
+        )}
+    )
+    def get(self, request):
+        try:
+            guest_session = self._get_guest_session(request)
+        except serializers.ValidationError as e:
+            # We can map some validation errors to 401/403/404 if desired, 
+            # but returning 400 with the detail is also fine for a quick helper.
+            # Let's do a simple mapping based on the message.
+            detail = e.detail
+            if isinstance(detail, dict) and "detail" in detail:
+                msg = detail["detail"]
+                if "credentials" in msg or "Invalid" in msg:
+                    return Response(detail, status=status.HTTP_401_UNAUTHORIZED)
+                if "Not a valid" in msg:
+                    return Response(detail, status=status.HTTP_403_FORBIDDEN)
+                if "not found" in msg:
+                    return Response(detail, status=status.HTTP_404_NOT_FOUND)
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+
+        from users.serializers.guest import GuestSessionUpdateSerializer
+        serializer = GuestSessionUpdateSerializer(guest_session)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
         tags=["Auth"],
@@ -180,27 +242,19 @@ class GuestSessionUpdateView(APIView):
         responses={200: OpenApiResponse(description="Guest session updated successfully.")}
     )
     def patch(self, request):
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-        if not auth_header.startswith('Bearer '):
-            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
-            
-        token_string = auth_header.split(' ')[1]
         try:
-            token = AccessToken(token_string)
-        except Exception:
-            return Response({"detail": "Invalid or expired token."}, status=status.HTTP_401_UNAUTHORIZED)
-            
-        if token.get('token_type') != 'guest':
-            return Response({"detail": "Not a valid guest token."}, status=status.HTTP_403_FORBIDDEN)
-            
-        device_fingerprint = token.get('device_fingerprint')
-        if not device_fingerprint:
-            return Response({"detail": "Guest token missing device fingerprint."}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            guest_session = GuestSession.objects.get(device_fingerprint=device_fingerprint)
-        except GuestSession.DoesNotExist:
-            return Response({"detail": "Guest session not found."}, status=status.HTTP_404_NOT_FOUND)
+            guest_session = self._get_guest_session(request)
+        except serializers.ValidationError as e:
+            detail = e.detail
+            if isinstance(detail, dict) and "detail" in detail:
+                msg = detail["detail"]
+                if "credentials" in msg or "Invalid" in msg:
+                    return Response(detail, status=status.HTTP_401_UNAUTHORIZED)
+                if "Not a valid" in msg:
+                    return Response(detail, status=status.HTTP_403_FORBIDDEN)
+                if "not found" in msg:
+                    return Response(detail, status=status.HTTP_404_NOT_FOUND)
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
             
         from users.serializers.guest import GuestSessionUpdateSerializer
         serializer = GuestSessionUpdateSerializer(guest_session, data=request.data, partial=True)
