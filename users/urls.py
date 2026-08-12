@@ -13,6 +13,7 @@ from users.views import (
     ResendVerificationView,
     VerifyEmailView,
     GoogleLoginView,
+    GuestSessionUpdateView,
 )
 
 from drf_spectacular.utils import extend_schema_view, extend_schema
@@ -36,4 +37,5 @@ urlpatterns = [
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
     path("me/", MeView.as_view(), name="me"),
     path("guest/", GuestAccessView.as_view(), name="guest-access"),
+    path("guest/update/", GuestSessionUpdateView.as_view(), name="guest-update"),
 ]

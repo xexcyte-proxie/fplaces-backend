@@ -13,3 +13,9 @@ class GuestAccessSerializer(serializers.Serializer):
             "The same fingerprint across requests ties activity to one trial window."
         ),
     )
+
+class GuestSessionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        from users.models import GuestSession
+        model = GuestSession
+        fields = ["has_tried_ar_view", "has_tried_2d_view"]

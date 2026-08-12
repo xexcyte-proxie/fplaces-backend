@@ -159,3 +159,52 @@ class GuestAccessView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class GuestSessionUpdateView(APIView):
+    """
+    Update guest session fields like has_tried_ar_view or has_tried_2d_view.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    @extend_schema(
+        tags=["Auth"],
+        summary="Update guest session preferences",
+        request=inline_serializer(
+            name="GuestSessionUpdateRequest",
+            fields={
+                "has_tried_ar_view": serializers.BooleanField(required=False),
+                "has_tried_2d_view": serializers.BooleanField(required=False),
+            },
+        ),
+        responses={200: OpenApiResponse(description="Guest session updated successfully.")}
+    )
+    def patch(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Bearer '):
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        token_string = auth_header.split(' ')[1]
+        try:
+            token = AccessToken(token_string)
+        except Exception:
+            return Response({"detail": "Invalid or expired token."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        if token.get('token_type') != 'guest':
+            return Response({"detail": "Not a valid guest token."}, status=status.HTTP_403_FORBIDDEN)
+            
+        device_fingerprint = token.get('device_fingerprint')
+        if not device_fingerprint:
+            return Response({"detail": "Guest token missing device fingerprint."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            guest_session = GuestSession.objects.get(device_fingerprint=device_fingerprint)
+        except GuestSession.DoesNotExist:
+            return Response({"detail": "Guest session not found."}, status=status.HTTP_404_NOT_FOUND)
+            
+        from users.serializers.guest import GuestSessionUpdateSerializer
+        serializer = GuestSessionUpdateSerializer(guest_session, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -22,6 +22,14 @@ class GuestSession(models.Model):
     ip_address = models.GenericIPAddressField(
         help_text="Most-recent IP address seen for this guest.",
     )
+    has_tried_ar_view = models.BooleanField(
+        default=False,
+        help_text="Whether the guest has tried the AR view feature.",
+    )
+    has_tried_2d_view = models.BooleanField(
+        default=False,
+        help_text="Whether the guest has tried the 2D view feature.",
+    )
     trial_started_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(auto_now=True)
 
