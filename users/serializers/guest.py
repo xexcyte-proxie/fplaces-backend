@@ -18,8 +18,8 @@ class GuestSessionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         from users.models import GuestSession
         model = GuestSession
-        fields = ["has_tried_ar_view", "has_tried_2d_view", "trial_started_at", "trial_expires_at"]
-        read_only_fields = ["trial_started_at", "trial_expires_at"]
+        fields = ["has_tried_ar_view", "has_tried_2d_view", "trial_started_at", "trial_expires_at", "has_2d_trial_expired"]
+        read_only_fields = ["trial_started_at", "trial_expires_at", "has_2d_trial_expired"]
 
     def update(self, instance, validated_data):
         from django.utils import timezone

@@ -53,6 +53,7 @@ class GuestAccessView(APIView):
                         "trial_expires_at": serializers.DateTimeField(),
                         "has_tried_ar_view": serializers.BooleanField(),
                         "has_tried_2d_view": serializers.BooleanField(),
+                        "has_2d_trial_expired": serializers.BooleanField(),
                         "mappedin": inline_serializer(
                             name="GuestMappedInData",
                             fields={
@@ -85,6 +86,7 @@ class GuestAccessView(APIView):
                     "trial_expires_at": "2026-08-11T21:17:00Z",
                     "has_tried_ar_view": False,
                     "has_tried_2d_view": False,
+                    "has_2d_trial_expired": False,
                     "mappedin": {
                         "token": "<mappedin-access-token>",
                         "expires_in": 3600,
@@ -161,6 +163,7 @@ class GuestAccessView(APIView):
                 "trial_expires_at": guest_session.trial_expires_at,
                 "has_tried_ar_view": guest_session.has_tried_ar_view,
                 "has_tried_2d_view": guest_session.has_tried_2d_view,
+                "has_2d_trial_expired": guest_session.has_2d_trial_expired,
                 "mappedin": mappedin_data,
             },
             status=status.HTTP_200_OK,
@@ -206,6 +209,7 @@ class GuestSessionUpdateView(APIView):
             fields={
                 "has_tried_ar_view": serializers.BooleanField(),
                 "has_tried_2d_view": serializers.BooleanField(),
+                "has_2d_trial_expired": serializers.BooleanField(),
             },
         )}
     )

@@ -61,3 +61,9 @@ class GuestSession(models.Model):
         if not self.trial_started_at:
             return True
         return timezone.now() <= self.trial_expires_at
+
+    @property
+    def has_2d_trial_expired(self):
+        if not self.trial_expires_at:
+            return False
+        return timezone.now() > self.trial_expires_at
