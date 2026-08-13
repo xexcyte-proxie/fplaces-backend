@@ -768,6 +768,8 @@ th:empty::before {
 <li><strong>Profile Setup</strong>: <code>PATCH /api/users/me/</code> (Provide <code>pseudo_name</code>). Required before the user can post.</li>
 <li><strong>Standard Login</strong>: <code>POST /api/users/login/</code> (Provide <code>email</code> and <code>password</code>). Returns JWT tokens.</li>
 <li><strong>Google Login</strong>: <code>POST /api/users/login/google/</code> (Provide Google OAuth <code>id_token</code>). Automatically registers/logs in the user and returns the standard JWT tokens.</li>
+<li><strong>Guest Access</strong>: <code>POST /api/users/guest/</code> (Provide <code>ip_address</code> and <code>device_fingerprint</code>). Returns a short-lived guest JWT, trial expiration info (including <code>has_2d_trial_expired</code>), and MappedIn keys. The guest session trial expires at the end of the day.</li>
+<li><strong>Update Guest Preferences</strong>: <code>PATCH /api/users/guest/update/</code> (Provide <code>has_tried_ar_view</code> or <code>has_tried_2d_view</code>). Updates guest tracking flags. Requires the guest JWT in the <code>Authorization</code> header.</li>
 </ul>
 <h2>2. Venue Selection &amp; Initial Feed Load (REST)</h2>
 <p>When a user opens the app and selects a venue, fetch the historical state of that venue.</p>
