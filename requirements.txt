@@ -12,3 +12,5 @@ loguru==0.7.3
 drf-spectacular==0.29.0
 django-cors-headers==4.6.0
 google-auth==2.30.0
+pytest==8.3.2
+pytest-django==4.9.0
