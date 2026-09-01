@@ -1,14 +1,11 @@
-output "api_gateway_url" {
-  description = "The public URL of the API Gateway"
-  value       = aws_apigatewayv2_api.http_api.api_endpoint
+output "alb_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = aws_lb.fplaces_alb.dns_name
 }
 
-output "s3_bucket_name" {
-  description = "The name of the S3 bucket used for media"
-  value       = aws_s3_bucket.media_bucket.bucket
+
+output "ecr_repository_url" {
+  description = "The URL of the ECR repository"
+  value       = aws_ecr_repository.app_repo.repository_url
 }
 
-output "db_endpoint" {
-  description = "The connection endpoint for the RDS PostgreSQL database"
-  value       = aws_db_instance.postgres.endpoint
-}
