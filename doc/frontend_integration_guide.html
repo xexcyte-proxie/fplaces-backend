@@ -773,8 +773,13 @@ th:empty::before {
 <li><code>recent_posts</code>: the user's 5 most recently created posts (full post objects, newest first) &mdash; drives the "Recent Posts" list on the profile screen.</li>
 </ul>
 </li>
-<li><strong>Standard Login</strong>: <code>POST /api/users/login/</code> (Provide <code>email</code> and <code>password</code>). Returns JWT tokens.</li>
+<li><strong>Standard Login</strong>: <code>POST /api/users/login/</code> (Provide <code>email</code> and <code>password</code>). Returns an <code>access</code>/<code>refresh</code> JWT pair plus the user's profile embedded under <code>user</code>, so no separate <code>GET /api/users/me/</code> call is needed right after login.</li>
 <li><strong>Google Login</strong>: <code>POST /api/users/login/google/</code> (Provide Google OAuth <code>id_token</code>). Automatically registers/logs in the user and returns the standard JWT tokens.</li>
+<li><strong>Refresh Token</strong>: <code>POST /api/users/token/refresh/</code> (Provide <code>refresh</code>). Returns a new <code>access</code> token once the old one expires (after 30 minutes).</li>
+<li><strong>Logout</strong>: <code>POST /api/users/logout/</code> (Provide <code>refresh</code>). Blacklists the refresh token; discard the <code>access</code> token locally too since it stays valid until it naturally expires.</li>
+<li><strong>Forgot Password</strong>: <code>POST /api/users/password-reset/</code> (Provide <code>email</code>). Emails a <code>uid</code>/<code>token</code> reset link. Always returns a generic <code>200</code> regardless of whether the email exists, to avoid leaking account existence.</li>
+<li><strong>Reset Password</strong>: <code>POST /api/users/password-reset-confirm/</code> (Provide <code>uid</code>, <code>token</code>, and <code>new_password</code> from the reset link).</li>
+<li><strong>Change Password</strong>: <code>POST /api/users/change-password/</code> (Provide <code>old_password</code> and <code>new_password</code>). For a logged-in user changing their password without the email round-trip.</li>
 <li><strong>Guest Access</strong>: <code>POST /api/users/guest/</code> (Provide <code>ip_address</code> and <code>device_fingerprint</code>). Returns a short-lived guest JWT, trial expiration info (including <code>has_2d_trial_expired</code>), and MappedIn keys. The guest session trial expires at the end of the day.</li>
 <li><strong>Update Guest Preferences</strong>: <code>PATCH /api/users/guest/update/</code> (Provide <code>has_tried_ar_view</code> or <code>has_tried_2d_view</code>). Updates guest tracking flags. Requires the guest JWT in the <code>Authorization</code> header.</li>
 </ul>
@@ -784,6 +789,7 @@ th:empty::before {
 <li><strong>List Venues</strong>: <code>GET /api/forum/venues/</code> (Fetch available stadiums/arenas).</li>
 <li><strong>List Sections/Categories</strong>: <code>GET /api/forum/sections/?venue=&lt;venue_id&gt;</code> and <code>GET /api/forum/categories/</code>.</li>
 <li><strong>Fetch Initial Feed</strong>: <code>GET /api/forum/posts/?venue=&lt;venue_id&gt;</code> (Paginated historical posts).</li>
+<li><strong>Get Map Token</strong>: <code>GET /api/maps/token/</code> (Authenticated). Returns a short-lived MappedIn token used to render the venue's interactive 2D/AR map. Guests get an equivalent token bundled directly into their <code>POST /api/users/guest/</code> response instead of calling this separately.</li>
 </ul>
 <h2>3. The Live Feed &amp; Heatmap (WebSocket)</h2>
 <p>Immediately after fetching the initial feed, establish a WebSocket connection to the venue's room:<br />
@@ -815,22 +821,35 @@ th:empty::before {
 </ul>
 </li>
 </ol>
-<h2>4. User Interactions (REST)</h2>
+<h2>4. Comments (WebSocket &amp; REST)</h2>
+<p>Each post has its own flat (1-level) comment thread. Unlike section conversations, comments are broadcast over the <strong>same venue room</strong> used for the live feed (Part 1, Section 3) rather than a socket of their own.</p>
+<ul>
+<li><strong>Fetch Comments</strong>: <code>GET /api/forum/comments/?post=&lt;post_id&gt;</code> (Paginated, oldest first).</li>
+<li><strong>Post a Comment</strong>: <code>POST /api/forum/comments/</code> (Provide <code>post</code> and <code>content</code>, max 500 chars). <em>Triggers <code>new_comment</code> on the post's venue WebSocket room</em>, and creates a <code>comment</code> notification for the post's author (delivered over the personal notifications socket in Section 6) unless they're commenting on their own post.</li>
+<li><strong>WebSocket Event (<code>new_comment</code>)</strong>: Received on the venue room, not a separate socket.
+<ul>
+<li><strong>Payload</strong>: The full JSON object of the newly created comment.</li>
+<li><strong>Action</strong>: Append it to that post's comment thread if it's currently open.</li>
+</ul>
+</li>
+</ul>
+<h2>5. User Interactions (REST)</h2>
 <p>When the user <em>does</em> something, fire a REST request. If successful, the backend automatically broadcasts the result over the WebSocket.</p>
 <ul>
 <li><strong>Create Post</strong>: <code>POST /api/forum/posts/</code> (Provide <code>content</code> max 140 chars, <code>venue</code>, <code>category</code>, and optional <code>section</code>). <em>Triggers <code>new_post</code> and <code>section_heat_update</code> on the socket.</em></li>
 <li><strong>Toggle Upvote</strong>: <code>POST /api/forum/posts/&lt;post_id&gt;/upvote/</code>. This is idempotent. <em>Triggers <code>upvote_update</code> on the socket.</em></li>
 <li><strong>Flag Post</strong>: <code>POST /api/forum/posts/&lt;post_id&gt;/flag/</code> (Provide optional <code>reason</code>). If it hits 3 unique flags, it auto-hides and <em>Triggers <code>post_hidden</code> and <code>section_heat_update</code> on the socket.</em></li>
 </ul>
-<h2>5. Personal Notifications (WebSocket &amp; REST)</h2>
+<h2>6. Personal Notifications (WebSocket &amp; REST)</h2>
 <p>Users have a personal WebSocket for cross-venue, account-level alerts.</p>
 <ul>
 <li><strong>Connect</strong>: <code>ws://&lt;domain&gt;/ws/notifications/?token=&lt;access_token&gt;</code></li>
 <li><strong>WebSocket Event (<code>new_notification</code>)</strong>: Pushes a notification object in real-time so you can increment the unread badge count.</li>
-<li><strong>REST Fetch</strong>: <code>GET /api/notifications/</code> (List paginated notification history).</li>
-<li><strong>REST Mark Read</strong>: <code>POST /api/notifications/&lt;id&gt;/mark-read/</code> or <code>POST /api/notifications/mark-all-read/</code>.</li>
+<li><strong>REST Fetch</strong>: <code>GET /api/notifications/</code> (List paginated notification history, newest first).</li>
+<li><strong>REST Unread Count</strong>: <code>GET /api/notifications/unread_count/</code> (Lightweight <code>{"unread_count": 3}</code> for badge rendering without paginating the full list).</li>
+<li><strong>REST Mark Read</strong>: <code>POST /api/notifications/&lt;id&gt;/mark_read/</code> or <code>POST /api/notifications/mark_all_read/</code>.</li>
 </ul>
-<h2>6. Section Conversations (WebSocket &amp; REST)</h2>
+<h2>7. Section Conversations (WebSocket &amp; REST)</h2>
 <p>Each physical section (e.g. North Stand, VIP) has its own separate conversation thread, independent of the venue-wide post feed. When the user opens a section's conversation view, fetch its history over REST, then connect to that section's room for live updates:</p>
 <ul>
 <li><strong>Fetch History</strong>: <code>GET /api/forum/conversations/?section=&lt;section_id&gt;</code> (Paginated, oldest first).</li>
@@ -884,10 +903,20 @@ th:empty::before {
 <h2>4. User Management (REST)</h2>
 <p>Complete control over user accounts.</p>
 <ul>
-<li><strong>List Users</strong>: <code>GET /api/admin/users/</code> (Fetch all users, paginated).</li>
-<li><strong>Archive User</strong>: <code>DELETE /api/admin/users/&lt;user_id&gt;/</code> (Soft-deletes the user, disabling their account).</li>
+<li><strong>List Users</strong>: <code>GET /api/admin/users/</code> (Fetch all users, paginated, including archived/unverified accounts).</li>
+<li><strong>Archive User</strong>: <code>DELETE /api/admin/users/&lt;user_id&gt;/</code> or <code>POST /api/admin/users/&lt;user_id&gt;/archive/</code> (equivalent). Soft-deletes the user (<code>is_archived=True</code>), disabling their login without touching their posts/comments.</li>
 <li><strong>Restore User</strong>: <code>POST /api/admin/users/&lt;user_id&gt;/restore/</code></li>
-<li><strong>Promote to Staff</strong>: Use standard <code>PUT</code> or <code>PATCH</code> on <code>/api/admin/users/&lt;user_id&gt;/</code> to set <code>user_type="admin"</code> or <code>is_staff=True</code>.</li>
+<li><strong>Toggle Staff Status</strong>: <code>POST /api/admin/users/&lt;user_id&gt;/toggle-staff/</code> (Flips <code>is_staff</code> to its opposite value; call again to toggle back).</li>
+</ul>
+<h2>5. Broadcast Notifications (REST)</h2>
+<p>Send a targeted push and/or email blast to users matched by venue, section, category, or explicit user ids (a union of whichever filters are provided &mdash; at least one is required).</p>
+<ul>
+<li><strong>Send Broadcast</strong>: <code>POST /api/admin/notifications/</code> (Provide <code>subject</code>, <code>message</code>, <code>channels</code> (<code>["email", "push"]</code>), and at least one of <code>venue</code>, <code>section</code>, <code>category</code>, or <code>users</code>).
+<ul>
+<li><strong>Push</strong> channel creates a <code>broadcast</code>-verb <code>Notification</code> per matched user, delivered live over their <code>ws/notifications/</code> socket.</li>
+<li><strong>Returns</strong>: <code>{"users_targeted": 50, "email_sent": 48, "push_sent": 50}</code>. Delivery is best-effort per user/channel &mdash; one failed send doesn't stop the rest of the broadcast.</li>
+</ul>
+</li>
 </ul>
 
       </main>
