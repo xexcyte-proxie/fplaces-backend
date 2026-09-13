@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.serializers import BaseSerializer
@@ -51,6 +53,7 @@ class UserSerializer(BaseSerializer):
             },
         }
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_stat(self, obj):
         posts = obj.posts.filter(is_archived=False)
         return {
@@ -59,6 +62,7 @@ class UserSerializer(BaseSerializer):
             "venues_count": posts.values("venue_id").distinct().count(),
         }
 
+    @extend_schema_field(serializers.ListField(child=serializers.JSONField()))
     def get_recent_posts(self, obj):
         from forum.serializers import PostSerializer
 

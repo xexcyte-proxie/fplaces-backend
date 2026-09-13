@@ -765,7 +765,14 @@ th:empty::before {
 <ul>
 <li><strong>Register</strong>: <code>POST /api/users/register/</code> (Provide <code>email</code> and <code>password</code>). User is created but <code>is_email_verified</code> is <code>False</code>.</li>
 <li><strong>Verify Email</strong>: <code>POST /api/users/verify-email/</code> (Provide <code>email</code> and the 6-digit <code>otp</code> sent to their email).</li>
-<li><strong>Profile Setup</strong>: <code>PATCH /api/users/me/</code> (Provide <code>pseudo_name</code>). Required before the user can post.</li>
+<li><strong>List Interests</strong>: <code>GET /api/forum/interests/</code> (Public, no auth required). Returns the curated catalog of interests (id, name, slug, order) to render as picker tags &mdash; no longer hardcoded on the frontend.</li>
+<li><strong>Profile Setup</strong>: <code>PATCH /api/users/me/</code> (Provide <code>pseudo_name</code> and optionally <code>interests</code>, an array of interest names picked from the catalog above). Setting <code>pseudo_name</code> is required before the user can post.</li>
+<li><strong>Fetch Own Profile</strong>: <code>GET /api/users/me/</code>. Besides the standard profile fields and <code>interests</code>, the response includes:
+<ul>
+<li><code>stat</code>: <code>{"posts_count": 86, "upvotes_count": 3200, "venues_count": 14}</code> &mdash; drives the stat cards at the top of the profile screen.</li>
+<li><code>recent_posts</code>: the user's 5 most recently created posts (full post objects, newest first) &mdash; drives the "Recent Posts" list on the profile screen.</li>
+</ul>
+</li>
 <li><strong>Standard Login</strong>: <code>POST /api/users/login/</code> (Provide <code>email</code> and <code>password</code>). Returns JWT tokens.</li>
 <li><strong>Google Login</strong>: <code>POST /api/users/login/google/</code> (Provide Google OAuth <code>id_token</code>). Automatically registers/logs in the user and returns the standard JWT tokens.</li>
 <li><strong>Guest Access</strong>: <code>POST /api/users/guest/</code> (Provide <code>ip_address</code> and <code>device_fingerprint</code>). Returns a short-lived guest JWT, trial expiration info (including <code>has_2d_trial_expired</code>), and MappedIn keys. The guest session trial expires at the end of the day.</li>
@@ -822,6 +829,19 @@ th:empty::before {
 <li><strong>WebSocket Event (<code>new_notification</code>)</strong>: Pushes a notification object in real-time so you can increment the unread badge count.</li>
 <li><strong>REST Fetch</strong>: <code>GET /api/notifications/</code> (List paginated notification history).</li>
 <li><strong>REST Mark Read</strong>: <code>POST /api/notifications/&lt;id&gt;/mark-read/</code> or <code>POST /api/notifications/mark-all-read/</code>.</li>
+</ul>
+<h2>6. Section Conversations (WebSocket &amp; REST)</h2>
+<p>Each physical section (e.g. North Stand, VIP) has its own separate conversation thread, independent of the venue-wide post feed. When the user opens a section's conversation view, fetch its history over REST, then connect to that section's room for live updates:</p>
+<ul>
+<li><strong>Fetch History</strong>: <code>GET /api/forum/conversations/?section=&lt;section_id&gt;</code> (Paginated, oldest first).</li>
+<li><strong>Connect</strong>: <code>ws://&lt;domain&gt;/ws/sections/&lt;section_id&gt;/?token=&lt;access_token&gt;</code></li>
+<li><strong>WebSocket Event (<code>new_section_message</code>)</strong>:
+<ul>
+<li><strong>Payload</strong>: The full JSON object of the newly created message.</li>
+<li><strong>Action</strong>: Append it to that section's conversation state.</li>
+</ul>
+</li>
+<li><strong>Post a Message</strong>: <code>POST /api/forum/conversations/</code> (Provide <code>section</code> and <code>content</code>, max 500 chars). <em>Triggers <code>new_section_message</code> on that section's socket.</em> You never send data up the socket itself &mdash; it is purely for receiving live broadcasts, same as the venue room.</li>
 </ul>
 <hr />
 <h1>PART 2: Admin / Moderator Dashboard</h1>
