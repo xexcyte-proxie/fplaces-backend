@@ -8,6 +8,11 @@ from core.serializers import BaseSerializer
 
 User = get_user_model()
 
+class UserStatSerializer(serializers.Serializer):
+    posts_count = serializers.IntegerField(help_text="Number of posts authored")
+    upvotes_count = serializers.IntegerField(help_text="Total upvotes received across posts")
+    venues_count = serializers.IntegerField(help_text="Distinct venues posted in")
+
 
 class UserSerializer(BaseSerializer):
     interests = serializers.ListField(
@@ -53,7 +58,7 @@ class UserSerializer(BaseSerializer):
             },
         }
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
+    @extend_schema_field(UserStatSerializer)
     def get_stat(self, obj):
         posts = obj.posts.filter(is_archived=False)
         return {
