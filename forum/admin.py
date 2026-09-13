@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from forum.models import Category, Comment, Post, PostFlag, PostVote, Section, Venue
+from forum.models import Category, Comment, Interest, Post, PostFlag, PostVote, Section, SectionMessage, Venue
 
 
 @admin.register(Category)
@@ -14,6 +14,19 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return Category.all_objects.all()
+
+
+@admin.register(Interest)
+class InterestAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug", "order", "is_active", "is_archived", "created_at"]
+    list_filter = ["is_active", "is_archived"]
+    search_fields = ["name"]
+    ordering = ["order", "name"]
+    readonly_fields = ["created_at", "updated_at"]
+    prepopulated_fields = {"slug": ("name",)}
+
+    def get_queryset(self, request):
+        return Interest.all_objects.all()
 
 
 class SectionInline(admin.TabularInline):
@@ -74,6 +87,17 @@ class CommentAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return Comment.all_objects.all()
+
+
+@admin.register(SectionMessage)
+class SectionMessageAdmin(admin.ModelAdmin):
+    list_display = ["id", "section", "user", "created_at"]
+    list_filter = ["section__venue"]
+    search_fields = ["content", "user__email"]
+    readonly_fields = ["created_at", "updated_at"]
+
+    def get_queryset(self, request):
+        return SectionMessage.all_objects.all()
 
 
 @admin.register(PostVote)

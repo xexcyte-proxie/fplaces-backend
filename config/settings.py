@@ -1,20 +1,16 @@
 from datetime import timedelta
 from pathlib import Path
 
-import environ
+from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(
-    DEBUG=(bool, False),
-)
-environ.Env.read_env(BASE_DIR / ".env")
+ENV_MODE = config("ENV_MODE", default="local")  # Options: local, dev, prod
 
-ENV_MODE = env("ENV_MODE", default="local")  # Options: local, dev, prod
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
 
-SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-me-in-production")
-
-DEBUG = env.bool("DEBUG", default=(ENV_MODE in ["local", "dev"]))
+DEBUG = config("DEBUG", cast=bool, default=(ENV_MODE in ["local", "dev"]))
 
 ALLOWED_HOSTS = ['*']
 
@@ -86,7 +82,7 @@ ASGI_APPLICATION = "config.asgi.application"
 
 # channels-redis fans events out across multiple processes/workers; with no REDIS_URL
 # set (plain local dev), an in-memory layer is used instead (single process only).
-REDIS_URL = env("REDIS_URL", default=None)
+REDIS_URL = config("REDIS_URL", default=None)
 CHANNEL_LAYERS = {
     "default": (
         {
@@ -102,24 +98,24 @@ CHANNEL_LAYERS = {
 # Database
 # Postgres is used whenever DATABASE_URL is set, or if we are in local/dev mode and individual DB_* variables are provided.
 # Falls back to SQLite for plain local development.
-if env("DATABASE_URL", default=None):
+if config("DATABASE_URL", default=None):
     DATABASES = {
-        "default": env.db("DATABASE_URL")
+        "default": dj_database_url.parse(config("DATABASE_URL"))
     }
-elif ENV_MODE in ["local", "dev"] and env("DB_HOST", default=None):
+elif ENV_MODE in ["local", "dev"] and config("DB_HOST", default=None):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": env("DB_NAME", default="postgres"),
-            "USER": env("DB_USER", default=""),
-            "PASSWORD": env("DB_PASSWORD", default=""),
-            "HOST": env("DB_HOST", default=""),
-            "PORT": env.int("DB_PORT", default=5432),
+            "NAME": config("DB_NAME", default="postgres"),
+            "USER": config("DB_USER", default=""),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default=""),
+            "PORT": config("DB_PORT", cast=int, default=5432),
         }
     }
 else:
     DATABASES = {
-        "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+        "default": dj_database_url.parse(config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"))
     }
 
 
@@ -200,10 +196,12 @@ SPECTACULAR_SETTINGS = {
         {"name": "Auth", "description": "Registration, login/refresh, email verification, password reset."},
         {"name": "Users", "description": "Authenticated user's own profile."},
         {"name": "Categories", "description": "Fixed set of post categories (Lines and Crowds, Food and Drinks, Fan Vibe, Help)."},
+        {"name": "Interests", "description": "Curated catalog of user interests shown as profile picker tags."},
         {"name": "Venues", "description": "Stadiums/arenas fans can select to join a live feed."},
         {"name": "Sections", "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap."},
         {"name": "Posts", "description": "140-character venue feed posts, with upvotes, flags, and moderation."},
         {"name": "Comments", "description": "Threaded replies on posts."},
+        {"name": "Section Conversations", "description": "Per-section chat threads, separate from the venue-wide post feed."},
         {"name": "Notifications", "description": "Per-user notification inbox, also pushed live over WebSocket."},
         {"name": "Admin", "description": "Administrative metrics, moderation controls, and user management."},
     ],
@@ -223,19 +221,19 @@ SIMPLE_JWT = {
 
 
 PROJECT_NAME = "fplaces"
-FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000")
 
 # All outbound mail is sent through notifications.services.mail, which calls the
 # Resend API. With no key set (e.g. local dev), it logs the email instead of sending.
-RESEND_API_KEY = env("RESEND_API_KEY", default="")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@fplaces.app")
+RESEND_API_KEY = config("RESEND_API_KEY", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="no-reply@fplaces.app")
 
-MAPPEDIN_KEY = env("MAPPEDIN_KEY", default="")
-MAPPEDIN_SECRET = env("MAPPEDIN_SECRET", default="")
+MAPPEDIN_KEY = config("MAPPEDIN_KEY", default="")
+MAPPEDIN_SECRET = config("MAPPEDIN_SECRET", default="")
 
 # Guest access
 # GUEST_TOKEN_EXPIRATION: lifetime of the short-lived JWT returned to guests.
-GUEST_TOKEN_EXPIRATION = timedelta(minutes=env.int("GUEST_TOKEN_EXPIRATION_MINUTES", default=60))
+GUEST_TOKEN_EXPIRATION = timedelta(minutes=config("GUEST_TOKEN_EXPIRATION_MINUTES", cast=int, default=60))
 # GUEST_TRIAL_PERIOD_DAYS: total trial window (in days) per device fingerprint.
-GUEST_TRIAL_PERIOD_DAYS = env.int("GUEST_TRIAL_PERIOD_DAYS", default=1)
+GUEST_TRIAL_PERIOD_DAYS = config("GUEST_TRIAL_PERIOD_DAYS", cast=int, default=1)
 

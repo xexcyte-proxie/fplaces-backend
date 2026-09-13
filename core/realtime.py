@@ -17,5 +17,9 @@ def venue_group(venue_id):
     return f"venue_{venue_id}"
 
 
+def section_group(section_id):
+    return f"section_{section_id}"
+
+
 def user_group(user_id):
     return f"user_{user_id}"
