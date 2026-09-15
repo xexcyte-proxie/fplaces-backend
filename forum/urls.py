@@ -19,6 +19,8 @@ router.register("venues", VenueViewSet, basename="venue")
 router.register("sections", SectionViewSet, basename="section")
 router.register("posts", PostViewSet, basename="post")
 router.register("comments", CommentViewSet, basename="comment")
-router.register("conversations", LocationConversationViewSet, basename="location-message")
+router.register(
+    "conversations", LocationConversationViewSet, basename="location-message"
+)
 
 urlpatterns = router.urls

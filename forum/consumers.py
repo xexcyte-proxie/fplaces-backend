@@ -17,4 +17,8 @@ class LocationConsumer(BroadcastConsumer):
         return location_group(venue_id, location_id)
 
     async def location_message(self, event):
-        await self.send(text_data=json.dumps({"type": "new_location_message", "message": event["message"]}))
+        await self.send(
+            text_data=json.dumps(
+                {"type": "new_location_message", "message": event["message"]}
+            )
+        )

@@ -11,7 +11,9 @@ class LocationMessageCreateSerializer(serializers.Serializer):
     a ModelSerializer over either model — the view resolves the channel (find-or-create)
     before building the actual `LocationMessage` row."""
 
-    venue = serializers.IntegerField(help_text="Venue id. Must exist (and not be archived) or a 404 is raised.")
+    venue = serializers.IntegerField(
+        help_text="Venue id. Must exist (and not be archived) or a 404 is raised."
+    )
     location_id = serializers.CharField(
         max_length=255,
         allow_blank=False,
@@ -32,8 +34,12 @@ class LocationMessageCreateSerializer(serializers.Serializer):
 
 class LocationMessageSerializer(BaseSerializer):
     venue = serializers.IntegerField(source="conversation.venue_id", read_only=True)
-    location_id = serializers.CharField(source="conversation.location_id", read_only=True)
-    location_name = serializers.CharField(source="conversation.location_name", read_only=True)
+    location_id = serializers.CharField(
+        source="conversation.location_id", read_only=True
+    )
+    location_name = serializers.CharField(
+        source="conversation.location_name", read_only=True
+    )
     user = PublicUserSerializer(read_only=True)
 
     class Meta:

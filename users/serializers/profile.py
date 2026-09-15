@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -8,9 +7,12 @@ from core.serializers import BaseSerializer
 
 User = get_user_model()
 
+
 class UserStatSerializer(serializers.Serializer):
     posts_count = serializers.IntegerField(help_text="Number of posts authored")
-    upvotes_count = serializers.IntegerField(help_text="Total upvotes received across posts")
+    upvotes_count = serializers.IntegerField(
+        help_text="Total upvotes received across posts"
+    )
     venues_count = serializers.IntegerField(help_text="Distinct venues posted in")
 
 

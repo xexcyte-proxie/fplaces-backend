@@ -19,5 +19,7 @@ class InterestSerializer(BaseSerializer):
             "name": {"help_text": "Display name, must be unique."},
             "slug": {"help_text": "Auto-derived from `name` if not provided."},
             "order": {"help_text": "Sort order in interest pickers, ascending."},
-            "is_active": {"help_text": "Toggle off to hide from interest pickers without affecting users who already selected it."},
+            "is_active": {
+                "help_text": "Toggle off to hide from interest pickers without affecting users who already selected it."
+            },
         }

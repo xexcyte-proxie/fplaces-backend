@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -12,7 +13,7 @@ SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-producti
 
 DEBUG = config("DEBUG", cast=bool, default=(ENV_MODE in ["local", "dev"]))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
@@ -96,12 +97,11 @@ CHANNEL_LAYERS = {
 
 
 # Database
-# Postgres is used whenever DATABASE_URL is set, or if we are in local/dev mode and individual DB_* variables are provided.
+# Postgres is used whenever DATABASE_URL is set, or if we are in local/dev mode and
+# individual DB_* variables are provided.
 # Falls back to SQLite for plain local development.
 if config("DATABASE_URL", default=None):
-    DATABASES = {
-        "default": dj_database_url.parse(config("DATABASE_URL"))
-    }
+    DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 elif ENV_MODE in ["local", "dev"] and config("DB_HOST", default=None):
     DATABASES = {
         "default": {
@@ -115,14 +115,27 @@ elif ENV_MODE in ["local", "dev"] and config("DB_HOST", default=None):
     }
 else:
     DATABASES = {
-        "default": dj_database_url.parse(config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"))
+        "default": dj_database_url.parse(
+            config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+        )
     }
+
+# Test runs always use SQLite (an in-memory DB, by Django's default test behavior for the
+# sqlite3 backend), regardless of DATABASE_URL/DB_HOST above. Keeps the shared Postgres
+# instance (e.g. a pooled Supabase connection) out of the test/teardown lifecycle entirely,
+# instead of contending with it for a "test_<name>" database on every run.
+if "pytest" in sys.modules:
+    DATABASES["default"] = dj_database_url.parse(
+        f"sqlite:///{BASE_DIR / 'test_db.sqlite3'}"
+    )
 
 
 AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -185,7 +198,10 @@ SPECTACULAR_SETTINGS = {
         "Nothing is hard-deleted. `DELETE` on any resource archives it (`is_archived=True`) "
         "instead of removing the row; archived records are excluded from normal querysets. "
         "Most resources expose a `POST /{id}/restore/` action to bring them back.\n\n"
-        '<br/><a href="/api/guide.html" target="_blank" style="display:inline-block; padding:10px 20px; background-color:#00e096; color:#08090c; text-decoration:none; border-radius:8px; font-weight:bold;">📖 View Frontend Integration Guide</a>'
+        '<br/><a href="/api/guide.html" target="_blank" '
+        'style="display:inline-block; padding:10px 20px; background-color:#00e096; '
+        'color:#08090c; text-decoration:none; border-radius:8px; font-weight:bold;">'
+        "📖 View Frontend Integration Guide</a>"
     ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
@@ -194,17 +210,45 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SORT_OPERATIONS": False,
     "TAGS": [
-        {"name": "Auth", "description": "Registration, login/refresh, email verification, password reset."},
+        {
+            "name": "Auth",
+            "description": "Registration, login/refresh, email verification, password reset.",
+        },
         {"name": "Users", "description": "Authenticated user's own profile."},
-        {"name": "Categories", "description": "Fixed set of post categories (Lines and Crowds, Food and Drinks, Fan Vibe, Help)."},
-        {"name": "Interests", "description": "Curated catalog of user interests shown as profile picker tags."},
-        {"name": "Venues", "description": "Stadiums/arenas fans can select to join a live feed."},
-        {"name": "Sections", "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap."},
-        {"name": "Posts", "description": "140-character venue feed posts, with upvotes, flags, and moderation."},
+        {
+            "name": "Categories",
+            "description": "Fixed set of post categories (Lines and Crowds, Food and Drinks, Fan Vibe, Help).",
+        },
+        {
+            "name": "Interests",
+            "description": "Curated catalog of user interests shown as profile picker tags.",
+        },
+        {
+            "name": "Venues",
+            "description": "Stadiums/arenas fans can select to join a live feed.",
+        },
+        {
+            "name": "Sections",
+            "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap.",
+        },
+        {
+            "name": "Posts",
+            "description": "140-character venue feed posts, with upvotes, flags, and moderation.",
+        },
         {"name": "Comments", "description": "Threaded replies on posts."},
-        {"name": "Location Conversations", "description": "Map-pin chat scoped to (venue, Mappedin location id), separate from the venue-wide post feed and from admin Sections."},
-        {"name": "Notifications", "description": "Per-user notification inbox, also pushed live over WebSocket."},
-        {"name": "Admin", "description": "Administrative metrics, moderation controls, and user management."},
+        {
+            "name": "Location Conversations",
+            "description": "Map-pin chat scoped to (venue, Mappedin location id), separate "
+            "from the venue-wide post feed and from admin Sections.",
+        },
+        {
+            "name": "Notifications",
+            "description": "Per-user notification inbox, also pushed live over WebSocket.",
+        },
+        {
+            "name": "Admin",
+            "description": "Administrative metrics, moderation controls, and user management.",
+        },
     ],
     "CONTACT": {"name": "fplaces", "email": "support@fplaces.app"},
     "LICENSE": {"name": "Proprietary"},
@@ -234,7 +278,8 @@ MAPPEDIN_SECRET = config("MAPPEDIN_SECRET", default="")
 
 # Guest access
 # GUEST_TOKEN_EXPIRATION: lifetime of the short-lived JWT returned to guests.
-GUEST_TOKEN_EXPIRATION = timedelta(minutes=config("GUEST_TOKEN_EXPIRATION_MINUTES", cast=int, default=60))
+GUEST_TOKEN_EXPIRATION = timedelta(
+    minutes=config("GUEST_TOKEN_EXPIRATION_MINUTES", cast=int, default=60)
+)
 # GUEST_TRIAL_PERIOD_DAYS: total trial window (in days) per device fingerprint.
 GUEST_TRIAL_PERIOD_DAYS = config("GUEST_TRIAL_PERIOD_DAYS", cast=int, default=1)
-

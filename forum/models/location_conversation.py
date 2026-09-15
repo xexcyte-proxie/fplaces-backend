@@ -4,7 +4,9 @@ from core.models import BaseModel
 
 
 class LocationConversation(BaseModel):
-    venue = models.ForeignKey("forum.Venue", on_delete=models.CASCADE, related_name="location_conversations")
+    venue = models.ForeignKey(
+        "forum.Venue", on_delete=models.CASCADE, related_name="location_conversations"
+    )
     location_id = models.CharField(max_length=255)
     location_name = models.CharField(max_length=100, blank=True)
 

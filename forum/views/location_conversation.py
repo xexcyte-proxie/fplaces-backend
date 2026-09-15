@@ -26,7 +26,10 @@ _TAGS = ["Location Conversations"]
         parameters=[
             OpenApiParameter("venue", int, required=True, description="Venue id."),
             OpenApiParameter(
-                "location_id", str, required=True, description="Mappedin location id, exact match."
+                "location_id",
+                str,
+                required=True,
+                description="Mappedin location id, exact match.",
             ),
         ],
     ),
@@ -93,7 +96,9 @@ class LocationConversationViewSet(BaseViewSet):
         venue = get_object_or_404(Venue.objects, pk=data["venue"])
         location_name = data.get("location_name", "").strip()
 
-        conversation = self._get_or_create_conversation(venue, location_id, location_name)
+        conversation = self._get_or_create_conversation(
+            venue, location_id, location_name
+        )
         message = LocationMessage.objects.create(
             conversation=conversation, user=request.user, content=data["content"]
         )

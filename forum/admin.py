@@ -102,7 +102,14 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(LocationConversation)
 class LocationConversationAdmin(admin.ModelAdmin):
-    list_display = ["id", "venue", "location_id", "location_name", "is_archived", "created_at"]
+    list_display = [
+        "id",
+        "venue",
+        "location_id",
+        "location_name",
+        "is_archived",
+        "created_at",
+    ]
     list_filter = ["venue", "is_archived"]
     search_fields = ["location_id", "location_name"]
     readonly_fields = ["created_at", "updated_at"]

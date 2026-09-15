@@ -25,9 +25,13 @@ _TAGS = ["Interests"]
         description="`slug` is auto-derived from `name` if omitted.",
     ),
     update=extend_schema(tags=["Admin"], summary="Replace an interest (admin only)"),
-    partial_update=extend_schema(tags=["Admin"], summary="Update an interest (admin only)"),
+    partial_update=extend_schema(
+        tags=["Admin"], summary="Update an interest (admin only)"
+    ),
     destroy=extend_schema(tags=["Admin"], summary="Archive an interest (admin only)"),
-    restore=extend_schema(tags=["Admin"], summary="Restore an archived interest (admin only)"),
+    restore=extend_schema(
+        tags=["Admin"], summary="Restore an archived interest (admin only)"
+    ),
 )
 class InterestViewSet(BaseViewSet):
     queryset = Interest.objects.all()
