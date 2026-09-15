@@ -1,3 +1,5 @@
+import hashlib
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -17,8 +19,23 @@ def venue_group(venue_id):
     return f"venue_{venue_id}"
 
 
-def section_group(section_id):
-    return f"section_{section_id}"
+def location_group(venue_id, location_id):
+    # location_id is an opaque, client-supplied string (e.g. a Mappedin place id) that may
+    # contain characters the channel layer's group-name charset (and length limit) forbid,
+    # so it's hashed into a fixed-length, always-valid group name rather than used verbatim.
+    digest = hashlib.sha256(str(location_id).encode()).hexdigest()[:32]
+    return f"location_{venue_id}_{digest}"
+
+
+def broadcast_location_message(venue_id, location_id, message):
+    channel_layer = get_channel_layer()
+    if channel_layer is None:
+        return
+
+    async_to_sync(channel_layer.group_send)(
+        location_group(venue_id, location_id),
+        {"type": "location.message", "message": message},
+    )
 
 
 def user_group(user_id):

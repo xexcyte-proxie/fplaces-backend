@@ -34,15 +34,31 @@ sequenceDiagram
     API->>DB: Delete verification OTP record
     API-->>Client: Returns 200 OK & Verified User details
     Client->>User: Prompts to set profile pseudo_name
-    User->>Client: Enters pseudo_name
-    Client->>API: PATCH /api/users/me/ (pseudo_name)
+    User->>Client: Enters pseudo_name (and optionally interests, from GET /api/forum/interests/)
+    Client->>API: PATCH /api/users/me/ (pseudo_name, interests)
     API->>DB: Update User record
     API-->>Client: Returns 200 OK
 ```
 
+Alternatively, a user can skip password-based registration entirely via `POST /api/users/login/google/` (Google OAuth `id_token`), which auto-creates and auto-verifies the account on first use, or start as a guest (see Section 2) and register later.
+
 ---
 
-## 2. Real-Time Venue Discussion Feed Flow
+## 2. Guest Access Flow
+
+Lets a visitor try the app — including viewing the venue map — without creating an account.
+
+- Client calls `POST /api/users/guest/` with `ip_address` and `device_fingerprint`.
+- Backend gets-or-creates a `GuestSession` keyed by `device_fingerprint` and checks `is_trial_active` (valid through the calendar day of first use).
+  - If the trial has already expired for this device: return `403`, prompting the client to fall back to full registration.
+- On success, backend issues a short-lived JWT (`token_type=guest`, `sub=guest:<device_fingerprint>`, no resolvable `user_id`) and fetches a Mappedin token in the same round-trip.
+- Client uses the guest JWT as `Authorization: Bearer <token>` on guest-permitted endpoints (map rendering, browsing feeds) — every endpoint that requires a full account (posting, chatting, profile) rejects it, since standard `JWTAuthentication` can't resolve a `user_id` claim from it.
+- Client can call `PATCH /api/users/guest/update/` (with the guest JWT) to flag `has_tried_ar_view` / `has_tried_2d_view` as the guest explores.
+- When the guest decides to commit, they register or log in normally (Section 1); the guest session/JWT is simply discarded client-side — there's no merge step.
+
+---
+
+## 3. Real-Time Venue Discussion Feed Flow
 
 Once onboarding is completed, users join a venue room to receive live posts, comments, upvote updates, and heatmaps.
 
@@ -72,11 +88,13 @@ sequenceDiagram
     WS-->>Client: Pushes 'new_post' event payload (All connected users in venue)
 ```
 
+The same `venue_{id}` room also carries `new_comment` (Section 5), `upvote_update` and `post_hidden` (Section 4), and `section_heat_update` events — one socket per venue covers the whole shared feed.
+
 ---
 
-## 3. Post Interaction Flow (Upvoting & Flagging)
+## 4. Post Interaction Flow (Upvoting & Flagging)
 
-### 3.1 Upvoting (Idempotent Toggle)
+### 4.1 Upvoting (Idempotent Toggle)
 
 - User requests to upvote a post.
 - If a `PostVote` record for `(post, user)` does not exist:
@@ -92,7 +110,7 @@ sequenceDiagram
   - Increment the post's `upvotes_count` by 1.
   - Broadcast an `upvote_update` event (`upvoted=True`).
 
-### 3.2 Flagging (Moderation Request)
+### 4.2 Flagging (Moderation Request)
 
 - User flags a post for moderation with a `reason`.
 - Database atomically creates or restores the `PostFlag` record for `(post, user)`.
@@ -101,7 +119,55 @@ sequenceDiagram
 
 ---
 
-## 4. Moderation & Post Hiding Flow
+## 5. Comments Flow
+
+- User submits a comment on a post: `POST /api/forum/comments/` with `post` and `content`.
+- Backend creates the `Comment` row, attributed to the authenticated user.
+- Backend broadcasts a `new_comment` event to the post's venue room (`venue_{venue_id}`) — comments do **not** get a dedicated socket; they ride the same room as the live feed.
+- Backend creates a `comment`-verb `Notification` for the post's author (skipped if the commenter is the post's own author), pushed live over that author's personal notification socket (Section 8).
+- Only the comment's own author or staff may later edit (`PATCH`) or soft-delete (`DELETE`) it.
+
+---
+
+## 6. Location (Map-Pin) Conversation Flow
+
+Chat around a specific point on the venue map — identified by `(venue, location_id)`, where `location_id` is an opaque Mappedin location/place id, not an admin `Section`. The channel is created lazily; the client never generates or passes a conversation id.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Active Fan
+    participant Client as Client Application
+    participant API as REST API
+    participant DB as Database
+    participant Redis as Redis (Channel Layer)
+    participant WS as WebSocket Room
+
+    User->>Client: Taps a location pin on the Mappedin map
+    Client->>API: GET /api/forum/conversations/?venue={id}&location_id={mappedin_id}
+    alt No one has posted here yet
+        API-->>Client: 200 OK, empty list (no row created)
+    else Conversation already exists
+        API-->>Client: 200 OK, paginated messages (newest first)
+    end
+    Client->>WS: Connect ws/venues/{id}/locations/{location_id}/?token={JWT}
+    Note over WS: Group name is a hash of (venue_id, location_id) — location_id is opaque and may contain characters a channel-layer group name can't
+    User->>Client: Sends a message
+    Client->>API: POST /api/forum/conversations/ (venue, location_id, location_name?, content)
+    API->>DB: get_or_create LocationConversation(venue, location_id)
+    Note over API,DB: Unique constraint on (venue, location_id) makes concurrent first-messages safe — no duplicate channel
+    API->>DB: Create LocationMessage on that conversation
+    API->>Redis: group_send(location_group(venue,location_id), "new_location_message", data)
+    Redis->>WS: Forward event
+    WS-->>Client: Pushes {"type": "new_location_message", "message": {...}}
+    API-->>Client: 201 Created & message body
+```
+
+Only the message's own author or staff may later edit or soft-delete it. Admin `Section`s are never created from map pins — they remain a separate, small, hand-curated catalog used for onboarding and the heatmap.
+
+---
+
+## 7. Moderation & Post Hiding Flow
 
 ```mermaid
 sequenceDiagram
@@ -126,33 +192,42 @@ sequenceDiagram
 
 ---
 
-## 5. In-App Notifications Flow
+## 8. In-App Notifications Flow
 
 Notifications are created synchronously and dispatched immediately over the user's personal WebSocket.
 
-1. **Trigger Action**: User A comments on User B's post.
+1. **Trigger Action**: User A comments on User B's post (or upvotes it, or staff moderates it, or an admin sends a broadcast — Section 9.3).
 2. **Persistence**:
-   - Check if User A (actor) is not User B (recipient).
-   - Create a `Notification` record in the database (`recipient=User B`, `actor=User A`, `verb='comment'`).
+   - Check if the actor is not the recipient (skip self-notifications where applicable).
+   - Create a `Notification` record in the database (`recipient`, `actor`, `verb` — one of `comment`, `upvote`, `moderation`, `broadcast`).
 3. **Real-time Push**:
-   - Call `broadcast("user_UserB_id", "new_notification", notification_data)`.
-   - Connected WebSockets of User B receive the payload and increment their unread notification badge count in real-time.
+   - Call `broadcast("user_<recipient_id>", "new_notification", notification_data)`.
+   - Connected WebSockets of the recipient receive the payload and increment their unread notification badge count in real-time.
+4. **Catch-up**: `GET /api/notifications/` (history), `GET /api/notifications/unread_count/` (badge count without paginating), `POST /api/notifications/<id>/mark_read/`, `POST /api/notifications/mark_all_read/`.
 
 ---
 
-## 6. Admin Control Flows
+## 9. Admin Control Flows
 
 Dedicated administrative actions permit complete dashboard customization and system moderation.
 
-### 6.1 Admin Stats Check
+### 9.1 Admin Stats Check
 
 - Admin opens Dashboard -> Client hits `GET /api/admin/stats/`.
 - Backend aggregates metrics across Users, Posts, Comments, and active Venues, querying specific post counts per category and venue.
 - Returns dashboard statistics package to Admin.
 
-### 6.2 Flagged Content Moderation
+### 9.2 Flagged Content Moderation
 
 - Admin retrieves the moderation queue via `GET /api/admin/posts/flagged/` (sorted by flag count descending).
 - Admin reviews a flagged post and clicks **Clear Flags**.
 - Client calls `POST /api/admin/posts/{id}/clear-flags/`.
 - Backend resets `flags_count` to `0` and soft-archives all related `PostFlag` records.
+
+### 9.3 Admin Broadcast Notification
+
+- Admin composes a `subject`/`message` and picks a target: any combination of `venue`, `section`, `category`, or explicit `users` ids (matched users are the union of whichever filters are given), plus which `channels` to use (`email`, `push`, or both).
+- Client calls `POST /api/admin/notifications/`.
+- Backend resolves the matching active users, then per user/channel: sends the templated email via Resend and/or creates a `broadcast`-verb `Notification` pushed live over `ws/notifications/`.
+- A failure sending to one user/channel (e.g. a bad email address) is swallowed and doesn't stop the rest of the broadcast.
+- Backend returns `users_targeted`, `email_sent`, and `push_sent` counts so the admin panel can report delivery success.

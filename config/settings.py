@@ -168,7 +168,7 @@ SPECTACULAR_SETTINGS = {
         "Most endpoints require a JWT access token. Obtain one via `POST /api/users/login/`, "
         "then send it as `Authorization: Bearer <access_token>`. Access tokens expire after "
         "30 minutes; use `POST /api/users/token/refresh/` with the refresh token to renew.\n\n"
-        "WebSocket connections (venue rooms, section conversation rooms, personal "
+        "WebSocket connections (venue rooms, location conversation rooms, personal "
         "notifications) authenticate via a `?token=<access_token>` query parameter instead "
         "of a header.\n\n"
         "## Error format\n"
@@ -202,7 +202,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "Sections", "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap."},
         {"name": "Posts", "description": "140-character venue feed posts, with upvotes, flags, and moderation."},
         {"name": "Comments", "description": "Threaded replies on posts."},
-        {"name": "Section Conversations", "description": "Per-section chat threads, separate from the venue-wide post feed."},
+        {"name": "Location Conversations", "description": "Map-pin chat scoped to (venue, Mappedin location id), separate from the venue-wide post feed and from admin Sections."},
         {"name": "Notifications", "description": "Per-user notification inbox, also pushed live over WebSocket."},
         {"name": "Admin", "description": "Administrative metrics, moderation controls, and user management."},
     ],

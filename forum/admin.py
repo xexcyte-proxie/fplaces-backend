@@ -1,6 +1,17 @@
 from django.contrib import admin
 
-from forum.models import Category, Comment, Interest, Post, PostFlag, PostVote, Section, SectionMessage, Venue
+from forum.models import (
+    Category,
+    Comment,
+    Interest,
+    LocationConversation,
+    LocationMessage,
+    Post,
+    PostFlag,
+    PostVote,
+    Section,
+    Venue,
+)
 
 
 @admin.register(Category)
@@ -89,15 +100,26 @@ class CommentAdmin(admin.ModelAdmin):
         return Comment.all_objects.all()
 
 
-@admin.register(SectionMessage)
-class SectionMessageAdmin(admin.ModelAdmin):
-    list_display = ["id", "section", "user", "created_at"]
-    list_filter = ["section__venue"]
+@admin.register(LocationConversation)
+class LocationConversationAdmin(admin.ModelAdmin):
+    list_display = ["id", "venue", "location_id", "location_name", "is_archived", "created_at"]
+    list_filter = ["venue", "is_archived"]
+    search_fields = ["location_id", "location_name"]
+    readonly_fields = ["created_at", "updated_at"]
+
+    def get_queryset(self, request):
+        return LocationConversation.all_objects.all()
+
+
+@admin.register(LocationMessage)
+class LocationMessageAdmin(admin.ModelAdmin):
+    list_display = ["id", "conversation", "user", "created_at"]
+    list_filter = ["conversation__venue"]
     search_fields = ["content", "user__email"]
     readonly_fields = ["created_at", "updated_at"]
 
     def get_queryset(self, request):
-        return SectionMessage.all_objects.all()
+        return LocationMessage.all_objects.all()
 
 
 @admin.register(PostVote)

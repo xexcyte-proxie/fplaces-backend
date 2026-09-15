@@ -849,19 +849,19 @@ th:empty::before {
 <li><strong>REST Unread Count</strong>: <code>GET /api/notifications/unread_count/</code> (Lightweight <code>{"unread_count": 3}</code> for badge rendering without paginating the full list).</li>
 <li><strong>REST Mark Read</strong>: <code>POST /api/notifications/&lt;id&gt;/mark_read/</code> or <code>POST /api/notifications/mark_all_read/</code>.</li>
 </ul>
-<h2>7. Section Conversations (WebSocket &amp; REST)</h2>
-<p>Each physical section (e.g. North Stand, VIP) has its own separate conversation thread, independent of the venue-wide post feed. When the user opens a section's conversation view, fetch its history over REST, then connect to that section's room for live updates:</p>
+<h2>7. Location (Map Pin) Conversations (WebSocket &amp; REST)</h2>
+<p>Map-area chat is keyed by <strong><code>(venue, location_id)</code></strong>, where <code>location_id</code> is the Mappedin location/place id the fan tapped on the map &mdash; not an admin <code>Section</code> PK (see Part 1, Section 2 for those). The client never creates a conversation id and never needs an admin to pre-seed anything for a location: the first message for a never-seen <code>location_id</code> auto-creates its channel.</p>
 <ul>
-<li><strong>Fetch History</strong>: <code>GET /api/forum/conversations/?section=&lt;section_id&gt;</code> (Paginated, oldest first).</li>
-<li><strong>Connect</strong>: <code>ws://&lt;domain&gt;/ws/sections/&lt;section_id&gt;/?token=&lt;access_token&gt;</code></li>
-<li><strong>WebSocket Event (<code>new_section_message</code>)</strong>:
+<li><strong>Fetch History</strong>: <code>GET /api/forum/conversations/?venue=&lt;venue_id&gt;&amp;location_id=&lt;location_id&gt;</code> (Both params required. Paginated, newest first. Returns an empty list with <code>200</code>, never a <code>404</code>, if nobody has posted at that location yet &mdash; a channel is only created by <code>POST</code>.)</li>
+<li><strong>Post a Message</strong>: <code>POST /api/forum/conversations/</code> (Provide <code>venue</code>, <code>location_id</code>, <code>content</code> (max 500 chars), and optionally <code>location_name</code>). Finds-or-creates the <code>(venue, location_id)</code> channel, then stores the message. <code>location_name</code> only sets the channel's display name on first create (or backfills it if still blank) &mdash; it's ignored otherwise. <em>Triggers <code>new_location_message</code> on that location's socket.</em></li>
+<li><strong>Connect</strong>: <code>ws://&lt;domain&gt;/ws/venues/&lt;venue_id&gt;/locations/&lt;location_id&gt;/?token=&lt;access_token&gt;</code> (URL-encode <code>location_id</code>). Subscribe only once the user actually opens that location's chat &mdash; don't pre-subscribe to every pin on the map.</li>
+<li><strong>WebSocket Event</strong>: <code>{"type": "new_location_message", "message": { ...same shape as the POST response... }}</code>
 <ul>
-<li><strong>Payload</strong>: The full JSON object of the newly created message.</li>
-<li><strong>Action</strong>: Append it to that section's conversation state.</li>
+<li><strong>Action</strong>: Append <code>message</code> to that location's conversation state.</li>
 </ul>
 </li>
-<li><strong>Post a Message</strong>: <code>POST /api/forum/conversations/</code> (Provide <code>section</code> and <code>content</code>, max 500 chars). <em>Triggers <code>new_section_message</code> on that section's socket.</em> You never send data up the socket itself &mdash; it is purely for receiving live broadcasts, same as the venue room.</li>
 </ul>
+<p>Admin <code>Section</code>s (North Stand / South Stand / VIP) are unaffected and still used for onboarding, the venue post feed's optional <code>section</code>, and the heatmap &mdash; they are a separate, much smaller catalog and are never auto-created from map pins.</p>
 <hr />
 <h1>PART 2: Admin / Moderator Dashboard</h1>
 <p>This section covers the web-based administrative panel used by staff. Accessing these endpoints requires an account with <code>is_staff=True</code> or <code>user_type=admin</code>.</p>
