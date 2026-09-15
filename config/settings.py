@@ -232,6 +232,10 @@ SPECTACULAR_SETTINGS = {
             "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap.",
         },
         {
+            "name": "Maps",
+            "description": "Mappedin credentials for rendering a venue's interactive 2D/AR map.",
+        },
+        {
             "name": "Posts",
             "description": "140-character venue feed posts, with upvotes, flags, and moderation.",
         },

@@ -12,7 +12,7 @@ fplaces is a decoupled real-time backend platform built using the following stac
 - **Web & API Framework**: Django 6.0+ & Django REST Framework (DRF) 3.17+
 - **Asynchronous & WebSocket Layer**: Django Channels 4.3+ & Daphne ASGI Server
 - **Authentication**: `djangorestframework-simplejwt` (JSON Web Tokens), plus Google OAuth login and a short-lived, account-less guest JWT flow
-- **Database**: PostgreSQL (production/staging) and SQLite3 (local development)
+- **Database**: PostgreSQL (production/staging) and SQLite3 (local development); the test suite always runs against an in-memory SQLite database regardless of the configured backend, so it never touches the shared Postgres instance
 - **Email Delivery**: Resend SDK (`resend` 2.32+)
 - **Interactive Venue Map**: Mappedin (2D/AR map + individual location pins), proxied through a thin `map` app
 - **API Documentation**: OpenAPI 3.0 via `drf-spectacular`, plus a standalone `doc/frontend_integration_guide.html` served at `/api/guide.html` for WebSocket contracts OpenAPI can't express

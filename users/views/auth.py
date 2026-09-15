@@ -57,7 +57,15 @@ User = get_user_model()
                     "id": 1,
                     "email": "fan@example.com",
                     "pseudo_name": None,
+                    "first_name": "",
+                    "last_name": "",
+                    "bio": "",
+                    "avatar_url": None,
+                    "user_type": "regular_user",
                     "is_email_verified": False,
+                    "interests": None,
+                    "stat": {"posts_count": 0, "upvotes_count": 0, "venues_count": 0},
+                    "recent_posts": [],
                     "created_at": "2026-06-19T00:04:56.813191Z",
                     "updated_at": "2026-06-19T00:04:56.813210Z",
                 },
@@ -107,7 +115,19 @@ class RegisterView(generics.CreateAPIView):
                         "id": 1,
                         "email": "fan@example.com",
                         "pseudo_name": "BlueSeat42",
+                        "first_name": "",
+                        "last_name": "",
+                        "bio": "",
+                        "avatar_url": None,
+                        "user_type": "regular_user",
                         "is_email_verified": True,
+                        "interests": ["Stats and scores", "Photography"],
+                        "stat": {
+                            "posts_count": 86,
+                            "upvotes_count": 3200,
+                            "venues_count": 14,
+                        },
+                        "recent_posts": [],
                         "created_at": "2026-06-19T00:04:56.813191Z",
                         "updated_at": "2026-06-19T00:06:23.240753Z",
                     },
@@ -145,8 +165,11 @@ class GoogleLoginView(APIView):
             idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
             email = idinfo.get("email")
             if not email:
-                return Response({"detail": "Google token does not contain an email."}, status=status.HTTP_400_BAD_REQUEST)
-            
+                return Response(
+                    {"detail": "Google token does not contain an email."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             user = User.all_objects.filter(email__iexact=email).first()
             if not user:
                 user = User.objects.create_user(
@@ -154,7 +177,7 @@ class GoogleLoginView(APIView):
                     password=User.objects.make_random_password(length=14),
                     user_type=User.UserType.REGULAR_USER,
                 )
-            
+
             if not user.is_email_verified:
                 user.is_email_verified = True
                 user.save(update_fields=["is_email_verified", "updated_at"])
@@ -169,7 +192,9 @@ class GoogleLoginView(APIView):
                 status=status.HTTP_200_OK,
             )
         except ValueError:
-            return Response({"detail": "Invalid Google token."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid Google token."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 @extend_schema_view(
@@ -196,6 +221,7 @@ class VerifyEmailView(APIView):
         user.save(update_fields=["is_email_verified", "updated_at"])
 
         from users.emails import send_welcome_email
+
         send_welcome_email(user)
 
         otp_instance = serializer.validated_data.get("otp_instance")
@@ -229,7 +255,9 @@ class ResendVerificationView(APIView):
         ).first()
         if user:
             send_verification_email(user)
-        return Response({"detail": "If that account exists, a verification email has been sent."})
+        return Response(
+            {"detail": "If that account exists, a verification email has been sent."}
+        )
 
 
 @extend_schema_view(
@@ -252,10 +280,14 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = User.all_objects.filter(email__iexact=serializer.validated_data["email"]).first()
+        user = User.all_objects.filter(
+            email__iexact=serializer.validated_data["email"]
+        ).first()
         if user:
             send_password_reset_email(user)
-        return Response({"detail": "If that account exists, a password reset email has been sent."})
+        return Response(
+            {"detail": "If that account exists, a password reset email has been sent."}
+        )
 
 
 @extend_schema_view(
@@ -303,12 +335,18 @@ class LogoutView(APIView):
     def post(self, request):
         refresh_token = request.data.get("refresh")
         if not refresh_token:
-            return Response({"detail": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
         except TokenError:
-            return Response({"detail": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid or expired token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response(status=status.HTTP_205_RESET_CONTENT)
