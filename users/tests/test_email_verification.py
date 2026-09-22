@@ -1,5 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
@@ -66,8 +67,7 @@ class EmailVerificationTests(APITestCase):
         kwargs = welcome_call[1]
         self.assertEqual(kwargs["to"], user.email)
         self.assertEqual(kwargs["template_name"], "welcome.html")
-        self.assertEqual(kwargs["context"]["frontend_url"], "http://localhost:3000")
-
+        self.assertEqual(kwargs["context"]["frontend_url"], settings.FRONTEND_URL)
 
     @patch("users.emails.send_template_email")
     def test_failed_verification_invalid_otp(self, mock_send_email):
