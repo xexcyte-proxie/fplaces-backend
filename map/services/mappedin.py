@@ -6,6 +6,10 @@ from loguru import logger
 def fetch_mappedin_token():
     url = "https://app.mappedin.com/api/v1/api-key/token"
 
+    logger.debug(
+        f"Mappedin Key: {settings.MAPPEDIN_KEY}, Mappedin Secret: {settings.MAPPEDIN_SECRET}"
+    )
+
     payload = {"key": settings.MAPPEDIN_KEY, "secret": settings.MAPPEDIN_SECRET}
 
     # Hit Mappedin's authentication endpoint
