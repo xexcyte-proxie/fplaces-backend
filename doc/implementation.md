@@ -168,6 +168,7 @@ Scaffolded for future use; contains no models or endpoints yet.
 - `slug` (varchar, unique)
 - `description` (varchar)
 - `disclaimer` (varchar)
+- `icon_url` (varchar, nullable)
 - `order` (int)
 - `is_active` (boolean)
 - `is_archived` (boolean)

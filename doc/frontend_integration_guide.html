@@ -787,7 +787,8 @@ th:empty::before {
 <p>When a user opens the app and selects a venue, fetch the historical state of that venue.</p>
 <ul>
 <li><strong>List Venues</strong>: <code>GET /api/forum/venues/</code> (Fetch available stadiums/arenas).</li>
-<li><strong>List Sections/Categories</strong>: <code>GET /api/forum/sections/?venue=&lt;venue_id&gt;</code> and <code>GET /api/forum/categories/</code>.</li>
+<li><strong>List Sections</strong>: <code>GET /api/forum/sections/?venue=&lt;venue_id&gt;</code></li>
+<li><strong>List Categories</strong>: <code>GET /api/forum/categories/</code> (Category objects include an <code>icon_url</code> field).</li>
 <li><strong>Fetch Initial Feed</strong>: <code>GET /api/forum/posts/?venue=&lt;venue_id&gt;</code> (Paginated historical posts).</li>
 <li><strong>Get Map Token</strong>: <code>GET /api/maps/token/</code> (Authenticated). Returns a short-lived MappedIn token used to render the venue's interactive 2D/AR map. Guests get an equivalent token bundled directly into their <code>POST /api/users/guest/</code> response instead of calling this separately.</li>
 </ul>
