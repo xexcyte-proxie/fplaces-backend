@@ -59,8 +59,8 @@ With no `REDIS_URL` configured (plain local dev), the channel layer falls back t
 
 1. **Connection**: Client requests a WebSocket connection to a room, e.g. `ws/venues/<venue_id>/?token=<access_token>` (venue-wide feed) or `ws/venues/<venue_id>/locations/<location_id>/?token=<access_token>` (a single map-pin's chat).
 2. **Authentication**: `users/middleware.py: JWTAuthMiddleware` intercepts the connection, extracts the token from the query parameters, verifies it, and attaches the user to the connection scope. If invalid/anonymous, the connection is closed.
-3. **Channel Group Joining**: The matching consumer joins its channel group — `VenueConsumer` joins `venue_<venue_id>`; `LocationConsumer` joins a group name derived by hashing `(venue_id, location_id)`, since `location_id` is an opaque, client-supplied string that may not fit the channel layer's allowed group-name characters/length.
-4. **Listening**: Connection remains open, waiting for incoming messages or server-side broadcasts.
+3. **Channel Group Joining & Presence Tracking**: The matching consumer joins its channel group — `VenueConsumer` joins `venue_<venue_id>`; `LocationConsumer` joins a group name derived by hashing `(venue_id, location_id)`. The user's ID is also added to a Redis Set via `PresenceManager` to track unique active users, and a `presence_update` event is immediately broadcasted to the room.
+4. **Listening & Disconnecting**: Connection remains open, waiting for incoming messages or server-side broadcasts. Upon disconnect, the user is removed from the `PresenceManager`'s Redis Set, triggering a final `presence_update` broadcast.
 5. **Broadcast Trigger**: When a viewset triggers `broadcast(group_name, event_type, payload)` (or the location-specific `broadcast_location_message(...)`), ASGI sends the event to the Redis Channel Layer.
 6. **Pub/Sub Forwarding**: Redis pushes the message to all connected Daphne worker threads listening to that group.
 7. **Client Delivery**: The consumer formats the payload and sends it over the active WebSocket frames to the client — `BroadcastConsumer.broadcast_message` for the shared `{"event", "payload"}` envelope used by most rooms, or `LocationConsumer.location_message` for the location room's `{"type": "new_location_message", "message": {...}}` shape.
@@ -91,7 +91,8 @@ fplaces/
 │   ├── managers.py             # Custom BaseManager to filter active/archived items
 │   ├── middleware.py           # HTTP logging & last-login middleware
 │   ├── realtime.py             # Channel group name helpers (incl. opaque-id hashing) and broadcast wrappers
-│   ├── consumers.py            # Generic WebSocket Broadcaster base class
+│   ├── presence.py             # Tracks real-time unique user presence counts using Redis Sets
+│   ├── consumers.py            # Generic WebSocket Broadcaster base class (handles presence events)
 │   ├── viewsets.py             # BaseViewSet: soft-delete-aware ModelViewSet with a generic restore action
 │   └── exceptions.py           # Standard DRF Exception handler overrides
 │

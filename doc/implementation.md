@@ -33,7 +33,7 @@ Provides base classes, utilities, and middleware shared across all apps:
 - `BaseManager` / `BaseQuerySet`: Automatically filters out soft-deleted/archived records by default.
 - `custom_exception_handler`: Standardizes all API error responses into a consistent envelope structure.
 - `LogRequest` & `UpdateLastLoginMiddleware`: Tracks request activity and updates user login times.
-- `consumers.py` & `realtime.py`: Implements base WebSocket consumer logic, channel-group naming (including hashing opaque ids like a Mappedin `location_id` into a valid, bounded-length group name), and channels broadcast wrappers.
+- `consumers.py`, `realtime.py` & `presence.py`: Implements base WebSocket consumer logic, channel-group naming (including hashing opaque ids like a Mappedin `location_id`), channels broadcast wrappers, and real-time presence tracking via Redis Sets.
 
 ### 2.2 `users`
 

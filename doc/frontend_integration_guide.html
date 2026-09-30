@@ -821,6 +821,12 @@ th:empty::before {
 <li><strong>Action</strong>: Overwrite your entire UI venue map state with this array. Map the <code>priority</code> string (<code>"high"</code>, <code>"medium"</code>, <code>"low"</code>) directly to your CSS glowing colors. Any missing section ID has 0 posts and is neutral.</li>
 </ul>
 </li>
+<li><strong><code>presence_update</code></strong>:
+<ul>
+<li><strong>Payload</strong>: <code>{"online_count": 42}</code></li>
+<li><strong>Action</strong>: Dynamically update the "live users" counter shown on the venue map screen. This tracks unique users actively connected to the venue room.</li>
+</ul>
+</li>
 </ol>
 <h2>4. Comments (WebSocket &amp; REST)</h2>
 <p>Each post has its own flat (1-level) comment thread. Unlike section conversations, comments are broadcast over the <strong>same venue room</strong> used for the live feed (Part 1, Section 3) rather than a socket of their own.</p>
@@ -859,6 +865,12 @@ th:empty::before {
 <li><strong>WebSocket Event</strong>: <code>{"type": "new_location_message", "message": { ...same shape as the POST response... }}</code>
 <ul>
 <li><strong>Action</strong>: Append <code>message</code> to that location's conversation state.</li>
+</ul>
+</li>
+<li><strong>WebSocket Event (<code>presence_update</code>)</strong>:
+<ul>
+<li><strong>Payload</strong>: <code>{"online_count": 5}</code></li>
+<li><strong>Action</strong>: Update the "live users" indicator showing how many unique users are actively viewing this location's conversation.</li>
 </ul>
 </li>
 </ul>
