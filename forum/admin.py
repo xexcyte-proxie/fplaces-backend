@@ -16,9 +16,17 @@ from forum.models import (
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "order", "is_active", "is_archived", "created_at"]
+    list_display = [
+        "name",
+        "slug",
+        "icon_url",
+        "order",
+        "is_active",
+        "is_archived",
+        "created_at",
+    ]
     list_filter = ["is_active", "is_archived"]
-    search_fields = ["name", "description"]
+    search_fields = ["name", "description", "icon_url"]
     ordering = ["order", "name"]
     readonly_fields = ["created_at", "updated_at"]
     prepopulated_fields = {"slug": ("name",)}

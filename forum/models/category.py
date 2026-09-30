@@ -9,6 +9,7 @@ class Category(BaseModel):
     slug = models.SlugField(max_length=60, unique=True, blank=True)
     description = models.CharField(max_length=255, blank=True)
     disclaimer = models.CharField(max_length=255, blank=True)
+    icon_url = models.URLField(max_length=500, blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
