@@ -1,6 +1,7 @@
 from forum.models.category import Category
 from forum.models.comment import Comment
 from forum.models.flag import PostFlag
+from forum.models.floor import Floor
 from forum.models.interest import Interest
 from forum.models.location_conversation import LocationConversation
 from forum.models.location_message import LocationMessage
@@ -13,6 +14,7 @@ __all__ = [
     "Category",
     "Interest",
     "Venue",
+    "Floor",
     "Section",
     "Post",
     "Comment",

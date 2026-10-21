@@ -1,5 +1,6 @@
 from forum.filters.category import CategoryFilter
 from forum.filters.comment import CommentFilter
+from forum.filters.floor import FloorFilter
 from forum.filters.interest import InterestFilter
 from forum.filters.location_conversation import LocationMessageFilter
 from forum.filters.post import PostFilter
@@ -10,6 +11,7 @@ __all__ = [
     "CategoryFilter",
     "InterestFilter",
     "VenueFilter",
+    "FloorFilter",
     "SectionFilter",
     "PostFilter",
     "CommentFilter",

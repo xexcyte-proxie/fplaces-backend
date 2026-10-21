@@ -228,8 +228,13 @@ SPECTACULAR_SETTINGS = {
             "description": "Stadiums/arenas fans can select to join a live feed.",
         },
         {
+            "name": "Floors",
+            "description": "A venue's floors/levels, synced automatically from Mappedin.",
+        },
+        {
             "name": "Sections",
-            "description": "Physical zones within a venue (e.g. North Stand, VIP), used for the section heatmap.",
+            "description": "Named places within a venue (e.g. North Stand, VIP, Gate 3), used for the "
+            "section heatmap. Synced from Mappedin per-floor, or created directly by an admin.",
         },
         {
             "name": "Maps",

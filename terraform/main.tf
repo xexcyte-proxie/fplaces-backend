@@ -77,6 +77,15 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Open regardless of whether domain_name is set yet, so applying the HTTPS
+  # listener later never requires a second security-group change.
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -141,6 +150,92 @@ resource "aws_lb_listener" "http" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.fplaces_tg.arn
+  }
+}
+
+# =====================================================================
+# HTTPS / ACM CERTIFICATE (only provisioned once var.domain_name is set)
+# =====================================================================
+# DNS-validated: ACM never sees your domain's actual DNS credentials, it just
+# needs a CNAME record to exist proving you control the domain. Must live in
+# the same region as the ALB (var.aws_region) — unlike CloudFront, which always
+# requires us-east-1 regardless of the distribution's region.
+resource "aws_acm_certificate" "backend" {
+  count             = var.domain_name != "" ? 1 : 0
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Auto-creates the validation CNAME only when DNS is hosted in this account's
+# Route 53 (route53_zone_id set). Otherwise, add the record yourself using the
+# backend_domain_validation_records output.
+resource "aws_route53_record" "backend_cert_validation" {
+  for_each = var.domain_name != "" && var.route53_zone_id != "" ? {
+    for dvo in aws_acm_certificate.backend[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  zone_id         = var.route53_zone_id
+  name            = each.value.name
+  type            = each.value.type
+  records         = [each.value.record]
+  ttl             = 60
+  allow_overwrite = true
+}
+
+# Blocks until ACM confirms the validation record above is visible and issues
+# the certificate. Only runs when Route 53 created that record automatically;
+# with an external DNS host, the certificate is requested but stays
+# PENDING_VALIDATION until you add the record yourself and ACM notices it
+# (independent of this Terraform run).
+resource "aws_acm_certificate_validation" "backend" {
+  count                   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
+  certificate_arn         = aws_acm_certificate.backend[0].arn
+  validation_record_fqdns = [for r in aws_route53_record.backend_cert_validation : r.fqdn]
+}
+
+locals {
+  # Prefer the validated cert's ARN (Route 53 path); fall back to the raw
+  # (possibly still-pending) cert ARN for the manual-DNS path, since the
+  # listener can reference it before validation completes.
+  backend_certificate_arn = var.domain_name == "" ? "" : (
+    var.route53_zone_id != "" ? aws_acm_certificate_validation.backend[0].certificate_arn : aws_acm_certificate.backend[0].arn
+  )
+}
+
+resource "aws_lb_listener" "https" {
+  count             = var.domain_name != "" ? 1 : 0
+  load_balancer_arn = aws_lb.fplaces_alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09"
+  certificate_arn   = local.backend_certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.fplaces_tg.arn
+  }
+}
+
+# Points domain_name at the ALB. Only when Route 53 hosts the domain's DNS —
+# with an external host, create this (a CNAME/ALIAS to alb_dns_name) yourself.
+resource "aws_route53_record" "backend_alias" {
+  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
+  zone_id = var.route53_zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.fplaces_alb.dns_name
+    zone_id                = aws_lb.fplaces_alb.zone_id
+    evaluate_target_health = true
   }
 }
 

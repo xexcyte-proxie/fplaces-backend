@@ -1,5 +1,6 @@
 from forum.views.category import CategoryViewSet
 from forum.views.comment import CommentViewSet
+from forum.views.floor import FloorViewSet
 from forum.views.interest import InterestViewSet
 from forum.views.location_conversation import LocationConversationViewSet
 from forum.views.post import PostViewSet
@@ -10,6 +11,7 @@ __all__ = [
     "CategoryViewSet",
     "InterestViewSet",
     "VenueViewSet",
+    "FloorViewSet",
     "SectionViewSet",
     "PostViewSet",
     "CommentViewSet",

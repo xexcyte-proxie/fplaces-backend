@@ -71,7 +71,7 @@ With no `REDIS_URL` configured (plain local dev), the channel layer falls back t
 
 ```text
 fplaces/
-├── manage.py                   # Django CLI administration entry point
+d├── manage.py                   # Django CLI administration entry point
 ├── config/                     # Core project settings and configurations
 │   ├── settings.py             # Database, apps, middlewares, simpleJWT, drf-spectacular, and Resend settings
 │   ├── urls.py                 # Master REST API routing

@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {% if original and original.mappedin_map_id %}
+    <li>
+      <a href="{% url 'admin:forum_venue_sync_mappedin' original.pk %}" class="button" style="background: var(--primary, #79aec8);">
+        Sync from Mappedin
+      </a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

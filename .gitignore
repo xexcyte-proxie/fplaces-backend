@@ -13,6 +13,7 @@ venv/
 .terraform/
 *.tfstate
 *.tfstate.backup
+*.tfstate.*.backup
 *.tfvars
 *.tfvars.json
 override.tf
