@@ -120,6 +120,15 @@ else:
         )
     }
 
+# Supabase's pooled connection (port 6543) is PgBouncer in transaction-pooling mode: the
+# physical connection backing a given transaction can be swapped out once it ends, which
+# breaks server-side (named) cursors — a later fetch can land on a different connection
+# where that cursor never existed, raising InvalidCursorName. Django documents this exact
+# incompatibility and DISABLE_SERVER_SIDE_CURSORS as the fix for any PostgreSQL connection
+# that might be pooled this way.
+if DATABASES["default"].get("ENGINE") == "django.db.backends.postgresql":
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+
 # Test runs always use SQLite (an in-memory DB, by Django's default test behavior for the
 # sqlite3 backend), regardless of DATABASE_URL/DB_HOST above. Keeps the shared Postgres
 # instance (e.g. a pooled Supabase connection) out of the test/teardown lifecycle entirely,
